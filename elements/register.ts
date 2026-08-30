@@ -1,5 +1,5 @@
 import { ELEMENT_DEFINITIONS } from "./definitions.ts";
-import { ELEMENT, NAME_KEY } from "./ids.ts";
+import { NAME_KEY } from "./ids.ts";
 
 const api = sandkit.api;
 
@@ -24,8 +24,6 @@ export function registerElements(): void {
         flammable: definition.flammable,
       } as Parameters<typeof api.elements.updateDefinition>[1]);
     }
-    if (definition.id !== ELEMENT.pineShoot) {
-      api.discoveries.addElementByType(elementType);
-    }
+    api.discoveries.addElementByType(elementType);
   }
 }

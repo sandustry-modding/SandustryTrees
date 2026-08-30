@@ -4,7 +4,7 @@ export const modinfo = defineModInfo({
   manifestVersion: 1,
   id: "irishbruse.trees",
   name: "Trees",
-  version: "0.1.7",
+  version: "0.1.15",
   apiVersion: 1,
   gameVersion: { minimum: "0.5.5" },
   entry: "main.js",

@@ -10,6 +10,8 @@ type LiveRegister = Parameters<typeof sandkit.api.elements.register>[0] & {
   flammable?: {
     outputElementId?: string;
     outputChance?: number;
+    static?: boolean;
+    duration?: number | readonly [number, number];
   };
 };
 
@@ -21,8 +23,8 @@ export const ELEMENT_DEFINITIONS: LiveRegister[] = [
   definition({
     id: ELEMENT.pineSeed,
     nameKey: NAME_KEY.pineSeed,
-    density: 220,
-    matterType: MatterType.Solid,
+    density: 90,
+    matterType: MatterType.Powder,
     metaColor: 0x6b4226,
     isGrabbable: true,
     isTransportable: true,
@@ -40,6 +42,8 @@ export const ELEMENT_DEFINITIONS: LiveRegister[] = [
     density: 160,
     matterType: MatterType.Static,
     metaColor: 0x5c3a21,
+    isGrabbable: true,
+    isTransportable: true,
     colors: {
       variants: [
         [92, 58, 33],
@@ -47,7 +51,7 @@ export const ELEMENT_DEFINITIONS: LiveRegister[] = [
         [110, 70, 40],
       ],
     },
-    defaultDataFields: { field1: 0, field2: 0, field3: 1, field4: 0 },
+    defaultDataFields: { field1: 0, field2: 0, field3: 1, field4: 1 },
   }),
   definition({
     id: ELEMENT.pineNeedle,
@@ -74,6 +78,7 @@ export const ELEMENT_DEFINITIONS: LiveRegister[] = [
     isTransportable: true,
     interactions: [{ kind: "flammable" }],
     flammable: { outputElementId: VANILLA_ELEMENT.burntResidue, outputChance: 1 },
+    defaultDataFields: { field1: 0 },
     colors: {
       variants: [
         [176, 122, 72],

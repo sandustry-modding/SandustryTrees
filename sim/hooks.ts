@@ -1,5 +1,5 @@
 import { ELEMENT, TERRAIN, VANILLA_ELEMENT } from "../elements/ids.ts";
-import { burnRawWood } from "./burn.ts";
+import { burnRawWood, ignitePrimedRawWood } from "./burn.ts";
 import { cellFromArgs } from "./cell.ts";
 import { collapseIfUnsupported, collapseTrunkFromDestroyed } from "./collapse.ts";
 import { growPineShoot } from "./growth.ts";
@@ -21,8 +21,7 @@ function resolveTypes(api: WorkerSandkitApi): TreeTypes {
     rawWood: api.elements.getTypeById(ELEMENT.rawWood),
     charcoal: api.elements.getTypeById(ELEMENT.charcoal),
     leafDust: api.elements.getTypeById(ELEMENT.leafDust),
-    wetSand: api.elements.getTypeById(VANILLA_ELEMENT.wetSand),
-    sand: api.elements.getTypeById(VANILLA_ELEMENT.sand),
+    wetSand: api.elements.getTypeById(VANILLA_ELEMENT.wetSand) || ElementType.WetSand,
     fire: ElementType.Fire,
     flame: ElementType.Flame,
   };
@@ -76,7 +75,7 @@ export function registerSimHooks(api: WorkerSandkitApi): void {
   const types = resolveTypes(api);
 
   api.hooks.intercept(
-    "element:blocked",
+    "element:move:blocked",
     (args, context) => {
       plantPineSeedFromBlocked(api, types, args, context);
     },
@@ -146,6 +145,16 @@ export function registerSimHooks(api: WorkerSandkitApi): void {
     if (!cell) return;
     burnRawWood(api, types, cell.x, cell.y, context);
   });
+
+  api.hooks.intercept(
+    "element:duration:expire",
+    (args, context) => {
+      const cell = cellFromArgs(args);
+      if (!cell) return;
+      ignitePrimedRawWood(api, types, cell.x, cell.y, context);
+    },
+    { guard: { elementType: types.rawWood } },
+  );
 
   try {
     api.events.on("terrain:destroyed", (payload) => {

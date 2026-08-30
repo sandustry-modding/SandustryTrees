@@ -7,7 +7,6 @@ export type TreeTypes = {
   charcoal: number;
   leafDust: number;
   wetSand: number;
-  sand: number;
   fire: number;
   flame: number;
 };

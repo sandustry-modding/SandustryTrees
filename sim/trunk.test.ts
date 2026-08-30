@@ -38,3 +38,27 @@ test("collapseTrunkAround drops remaining wood, the shoot, and linked needles", 
   assert.ok(raw.includes("3,9"));
   assert.deepEqual(dust.sort(), ["2,4", "4,4"]);
 });
+
+test("collapseTrunkAround replaces seed slots with pine seeds instead of leaf dust", () => {
+  const wood = new Set(["3,10"]);
+  const needles = new Set(["2,4", "3,4", "4,4"]);
+  const seeds: string[] = [];
+  const dust: string[] = [];
+  collapseTrunkAround(3, 12, {
+    isPineWood: (cellX, cellY) => wood.has(`${cellX},${cellY}`),
+    isNeedle: (cellX, cellY) => needles.has(`${cellX},${cellY}`),
+    isShoot: () => false,
+    needleRootX: () => 3,
+    removeWood: () => {},
+    dropRawWood: () => {},
+    dropLeafDust: (cellX, cellY) => {
+      dust.push(`${cellX},${cellY}`);
+    },
+    dropPineSeed: (cellX, cellY) => {
+      seeds.push(`${cellX},${cellY}`);
+    },
+    seedSlots: new Set(["3,4"]),
+  });
+  assert.deepEqual(seeds, ["3,4"]);
+  assert.deepEqual(dust.sort(), ["2,4", "4,4"]);
+});

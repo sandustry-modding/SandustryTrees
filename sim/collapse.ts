@@ -1,4 +1,5 @@
-import { FIELD } from "./constants.ts";
+import { FIELD, SECOND_SEED_CHANCE } from "./constants.ts";
+import { harvestSeedSlotsForCollapse } from "./harvestSeeds.ts";
 import { treeFields } from "./planting.ts";
 import { collapseTrunkAround } from "./trunk.ts";
 import type { TreeTypes } from "./types.ts";
@@ -35,11 +36,24 @@ export function collapseTrunkFromDestroyed(
   cellX: number,
   cellY: number,
 ): void {
+  const needleScan = {
+    isPineWood: (x: number, y: number) => api.terrains.getTypeAtCell(x, y) === types.pineWood,
+    isNeedle: (x: number, y: number) => api.elements.isTypeAtCell(x, y, types.pineNeedle),
+    needleRootX: (x: number, y: number) => api.elements.getDataFieldAtCell(x, y, FIELD.rootX) ?? x,
+    needleRootY: (x: number, y: number) => api.elements.getDataFieldAtCell(x, y, FIELD.rootY) ?? y,
+  };
+  const seedSlots = harvestSeedSlotsForCollapse(
+    cellX,
+    cellY,
+    needleScan,
+    Math.random() < SECOND_SEED_CHANCE,
+  );
+
   collapseTrunkAround(cellX, cellY, {
-    isPineWood: (x, y) => api.terrains.getTypeAtCell(x, y) === types.pineWood,
-    isNeedle: (x, y) => api.elements.isTypeAtCell(x, y, types.pineNeedle),
+    isPineWood: needleScan.isPineWood,
+    isNeedle: needleScan.isNeedle,
     isShoot: (x, y) => api.elements.isTypeAtCell(x, y, types.pineShoot),
-    needleRootX: (x, y) => api.elements.getDataFieldAtCell(x, y, FIELD.rootX) ?? x,
+    needleRootX: needleScan.needleRootX,
     removeWood: (x, y) => {
       api.terrains.removeAtCell(x, y);
     },
@@ -53,6 +67,10 @@ export function collapseTrunkFromDestroyed(
     },
     dropLeafDust: (x, y) => {
       convertFalling(api, x, y, types.leafDust);
+    },
+    seedSlots,
+    dropPineSeed: (x, y) => {
+      convertFalling(api, x, y, types.pineSeed);
     },
   });
 }

@@ -1,19 +1,22 @@
 import {
-  CANOPY_MAX_HALF_WIDTH,
-  CANOPY_ROWS,
   CANOPY_TIP_OFFSET_CELLS,
   CARDINAL_DIRS,
   TRUNK_HALF_WIDTH,
-  TRUNK_HEIGHT,
+  TRUNK_HALF_WIDTH_MAX,
+  TRUNK_HEIGHT_MAX,
 } from "./constants.ts";
+import { cellKey } from "./harvestSeeds.ts";
+import { canopyMaxHalfForHalfWidth, canopyRowsForHalfWidth } from "./size.ts";
 
 /** Vertical span to search for remaining trunk cells after one cell is mined. */
-const TRUNK_SEARCH = TRUNK_HEIGHT + 2;
+const TRUNK_SEARCH = TRUNK_HEIGHT_MAX + 2;
 
 /** Vertical span to search for canopy needles around a mined trunk cell. */
-const CANOPY_SEARCH = TRUNK_HEIGHT + CANOPY_ROWS + CANOPY_TIP_OFFSET_CELLS + 2;
+const CANOPY_SEARCH =
+  TRUNK_HEIGHT_MAX + canopyRowsForHalfWidth(TRUNK_HALF_WIDTH_MAX) + CANOPY_TIP_OFFSET_CELLS + 2;
 
-const MAX_CONNECTED = (2 * TRUNK_HALF_WIDTH + 1) * (TRUNK_HEIGHT + 4);
+const MAX_CONNECTED = (2 * TRUNK_HALF_WIDTH_MAX + 1) * (TRUNK_HEIGHT_MAX + 4);
+const NEEDLE_SEARCH_HALF = canopyMaxHalfForHalfWidth(TRUNK_HALF_WIDTH_MAX);
 
 export type TrunkCollapseOps = {
   isPineWood: (cellX: number, cellY: number) => boolean;
@@ -23,10 +26,16 @@ export type TrunkCollapseOps = {
   removeWood: (cellX: number, cellY: number) => void;
   dropRawWood: (cellX: number, cellY: number) => void;
   dropLeafDust: (cellX: number, cellY: number) => void;
+  dropPineSeed?: (cellX: number, cellY: number) => void;
+  seedSlots?: ReadonlySet<string>;
 };
 
-export function forEachTrunkColumn(rootX: number, visit: (cellX: number) => void): void {
-  for (let dx = -TRUNK_HALF_WIDTH; dx <= TRUNK_HALF_WIDTH; dx += 1) {
+export function forEachTrunkColumn(
+  rootX: number,
+  visit: (cellX: number) => void,
+  halfWidth = TRUNK_HALF_WIDTH,
+): void {
+  for (let dx = -halfWidth; dx <= halfWidth; dx += 1) {
     visit(rootX + dx);
   }
 }
@@ -85,12 +94,17 @@ export function collapseTrunkAround(cellX: number, minedY: number, ops: TrunkCol
     }
   }
 
-  const left = Math.min(...columnXs) - CANOPY_MAX_HALF_WIDTH;
-  const right = Math.max(...columnXs) + CANOPY_MAX_HALF_WIDTH;
+  const left = Math.min(...columnXs) - NEEDLE_SEARCH_HALF;
+  const right = Math.max(...columnXs) + NEEDLE_SEARCH_HALF;
   for (let needleX = left; needleX <= right; needleX += 1) {
     for (let needleY = top; needleY <= bottom; needleY += 1) {
       if (!ops.isNeedle(needleX, needleY)) continue;
       if (!columnXs.has(ops.needleRootX(needleX, needleY))) continue;
+      const key = cellKey(needleX, needleY);
+      if (ops.seedSlots?.has(key) && ops.dropPineSeed) {
+        ops.dropPineSeed(needleX, needleY);
+        continue;
+      }
       ops.dropLeafDust(needleX, needleY);
     }
   }

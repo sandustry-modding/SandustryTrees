@@ -27,6 +27,5 @@ export const NAME_KEY = {
 
 export const VANILLA_ELEMENT = {
   wetSand: "wetSand",
-  sand: "sand",
   burntResidue: "burntResidue",
 } as const;
