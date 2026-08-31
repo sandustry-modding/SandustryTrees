@@ -19,6 +19,8 @@ export function registerElements(): void {
         [130, 82, 48],
       ],
     },
+    isGrabbable: true,
+    isTransportable: true,
   });
 
   api.discoveries.addElementByType(elementType);
