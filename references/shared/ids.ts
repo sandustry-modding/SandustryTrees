@@ -1,4 +1,4 @@
-import { modinfo } from "../modinfo.ts";
+import { modinfo } from "../../modinfo.ts";
 
 const root = modinfo.id;
 
