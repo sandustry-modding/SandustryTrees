@@ -15,7 +15,7 @@ function pineWoodGrain(): [number, number, number][][] {
   );
 }
 
-export function registerTerrains(): void {
+export function register(): void {
   api.i18n.register("en", {
     [NAME_KEY.pineWood]: "Pine Wood"
   });

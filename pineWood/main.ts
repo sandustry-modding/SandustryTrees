@@ -1,10 +1,9 @@
 import { collapseIfDetached, type HarvestTypes } from "./collapse.ts";
-import { registerGrabShoot } from "./grabShoot.ts";
 import { ELEMENT, TERRAIN } from "../shared/ids.ts";
 
 const api = sandkit.api;
 
-function harvestTypes(): HarvestTypes {
+export function harvestTypes(): HarvestTypes {
   return {
     pineWood: api.terrains.getTypeById(TERRAIN.pineWood),
     pineNeedle: api.elements.getTypeById(ELEMENT.pineNeedle),
@@ -16,9 +15,8 @@ function harvestTypes(): HarvestTypes {
   };
 }
 
-export function registerHarvest(): void {
+export function registerMain(): void {
   const types = harvestTypes();
-  registerGrabShoot();
   api.events.on("terrain:destroyed", (payload) => {
     if (payload.cellType !== types.pineWood) return;
     const cellX = payload.cellX ?? payload.x;

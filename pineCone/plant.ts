@@ -1,17 +1,11 @@
-import { GROW_DURATION_TICKS } from "../grow/constants.ts";
+import { GROW_DURATION_TICKS } from "../pineShoot/constants.ts";
+import { DIRS } from "../shared/dirs.ts";
 
 export type PlantTypes = {
   pineCone: number;
   pineShoot: number;
   wetSand: number;
 };
-
-const DIRS: readonly [number, number][] = [
-  [0, 1],
-  [0, -1],
-  [1, 0],
-  [-1, 0]
-];
 
 export function tryPlantCone(
   api: WorkerSandkitApi,

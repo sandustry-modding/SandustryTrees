@@ -1,4 +1,4 @@
-import { CANOPY_MIN_TRUNK_HEIGHT } from "../canopy/constants.ts";
+import { CANOPY_MIN_TRUNK_HEIGHT } from "../pineNeedle/constants.ts";
 
 /** Mature pine trunk height in cells, including the root. */
 export const TRUNK_HEIGHT = 72;

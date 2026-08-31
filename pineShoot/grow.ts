@@ -1,4 +1,4 @@
-import { fillCanopy } from "../canopy/fill.ts";
+import { fillCanopy } from "../pineNeedle/fill.ts";
 import { GROW_DURATION_TICKS, TRUNK_HEIGHT, trunkHalfWidthAt } from "./constants.ts";
 
 export type GrowTypes = {
