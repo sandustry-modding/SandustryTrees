@@ -1,3 +1,3 @@
 - [x] Make the leaves generate a bit ahead of the shoot.
-- [ ] Make the trunk taper off as it reachs max height
+- [x] Make the trunk taper off as it reachs max height
 - [x] Make the shoot pickup able but turn to wood.

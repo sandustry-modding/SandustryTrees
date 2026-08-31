@@ -14,9 +14,10 @@ export function fillCanopy(
   height: number
 ): void {
   if (height < CANOPY_MIN_TRUNK_HEIGHT) return;
-  const shootY = woodY - 1;
-  const tipY = shootY - CANOPY_LEAD;
-  const rows = CANOPY_LEAD + (height - CANOPY_MIN_TRUNK_HEIGHT);
+  const growing = height < TRUNK_HEIGHT;
+  const peakY = growing ? woodY - 1 : woodY;
+  const tipY = peakY - CANOPY_LEAD;
+  const rows = CANOPY_LEAD + 1 + (height - CANOPY_MIN_TRUNK_HEIGHT);
   const growSpan = Math.max(1, TRUNK_HEIGHT - CANOPY_MIN_TRUNK_HEIGHT);
   const growT = Math.min(1, (height - CANOPY_MIN_TRUNK_HEIGHT) / growSpan);
   const maxHalf =
@@ -35,8 +36,9 @@ export function fillCanopy(
     const t = rows <= 1 ? 1 : row / (rows - 1);
     const half = TRUNK_HALF_WIDTH + 1 + Math.round(t * (maxHalf - TRUNK_HALF_WIDTH - 1));
     for (let dx = -half; dx <= half; dx += 1) {
-      if (cellY >= shootY && Math.abs(dx) <= TRUNK_HALF_WIDTH) continue;
+      if (growing && cellY === peakY && dx === 0) continue;
       const cellX = rootX + dx;
+      if (api.terrains.getTypeAtCell(cellX, cellY) === types.pineWood) continue;
       if (!api.grid.isCellEmptyAtCell(cellX, cellY)) continue;
       api.elements.createAtCell(cellX, cellY, types.pineNeedle);
       api.grid.reportActivityAtCell(cellX, cellY);

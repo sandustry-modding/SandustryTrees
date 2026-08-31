@@ -100,7 +100,7 @@ function dropCell(api: TreeApi, types: HarvestTypes, cell: Cell, writer: DropWri
   } else if (api.elements.isTypeAtCell(cell.x, cell.y, types.pineNeedle)) {
     writer.elements.replaceAtCell(cell.x, cell.y, types.leafDust, fall);
   } else if (api.elements.isTypeAtCell(cell.x, cell.y, types.pineShoot)) {
-    writer.elements.replaceAtCell(cell.x, cell.y, types.pineCone, fall);
+    writer.elements.replaceAtCell(cell.x, cell.y, types.wood, fall);
   }
   api.grid.reportActivityAtCell(cell.x, cell.y);
 }
