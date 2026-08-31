@@ -1,16 +1,20 @@
 import { growPineShoot } from "../grow/growth.ts";
+import { collapseIfDetached, type HarvestTypes } from "../harvest/collapse.ts";
 import { tryPlantCone, type PlantTypes } from "../plant/pineShoot.ts";
 import { cellFromArgs, xyFromValue } from "../shared/cell.ts";
 import { ELEMENT, TERRAIN } from "../shared/ids.ts";
 
-type SimTypes = PlantTypes & { pineWood: number };
+type SimTypes = PlantTypes & HarvestTypes;
 
 function resolveTypes(api: WorkerSandkitApi): SimTypes {
   return {
     pineCone: api.elements.getTypeById(ELEMENT.pineCone),
     pineShoot: api.elements.getTypeById(ELEMENT.pineShoot),
     wetSand: sandkit.enums.ElementType.WetSand,
-    pineWood: api.terrains.getTypeById(TERRAIN.pineWood)
+    pineWood: api.terrains.getTypeById(TERRAIN.pineWood),
+    pineNeedle: api.elements.getTypeById(ELEMENT.pineNeedle),
+    wood: api.elements.getTypeById(ELEMENT.wood),
+    leafDust: api.elements.getTypeById(ELEMENT.leafDust)
   };
 }
 
@@ -23,6 +27,7 @@ function onShootDuration(
   const cell = cellFromArgs(args);
   if (!cell) return;
   growPineShoot(api, types, cell.x, cell.y);
+  collapseIfDetached(api, types, cell.x, cell.y);
   context.cancel();
 }
 
@@ -68,4 +73,26 @@ export function registerSimHooks(api: WorkerSandkitApi): void {
     },
     { guard: { elementType: types.pineShoot } }
   );
+
+  api.hooks.intercept(
+    "element:update",
+    (args) => {
+      const cell = cellFromArgs(args);
+      if (cell) collapseIfDetached(api, types, cell.x, cell.y);
+    },
+    { guard: { elementType: types.pineShoot } }
+  );
+
+  try {
+    api.events.on(
+      "terrain:updated",
+      (payload) => {
+        const cell = cellFromArgs(payload);
+        if (cell) collapseIfDetached(api, types, cell.x, cell.y);
+      },
+      { guard: { terrainType: types.pineWood } }
+    );
+  } catch {
+    /* Main-thread terrain:destroyed still runs. */
+  }
 }

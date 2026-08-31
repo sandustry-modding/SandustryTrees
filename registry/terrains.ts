@@ -1,4 +1,4 @@
-import { NAME_KEY, TERRAIN } from "../shared/ids.ts";
+import { ELEMENT, NAME_KEY, TERRAIN } from "../shared/ids.ts";
 
 const api = sandkit.api;
 
@@ -21,6 +21,7 @@ export function registerTerrains(): void {
   });
 
   const colorsHSL = pineWoodGrain();
+  const woodType = api.elements.getTypeById(ELEMENT.wood);
   const { cellType } = api.terrains.register({
     id: TERRAIN.pineWood,
     nameKey: NAME_KEY.pineWood,
@@ -30,7 +31,8 @@ export function registerTerrains(): void {
     colorPattern: {
       size: [colorsHSL[0].length, colorsHSL.length],
       colorsHSL
-    }
+    },
+    output: { elementType: woodType, chance: 1 }
   });
 
   api.discoveries.addTerrainByType(cellType);
