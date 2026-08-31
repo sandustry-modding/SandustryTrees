@@ -16,7 +16,11 @@ export function growPineShoot(
   const aboveY = cellY - 1;
   api.elements.removeAtCell(cellX, cellY);
   if (api.grid.isCellEmptyAtCell(cellX, cellY)) {
+    // Trunk thickness based on tree size and number of seed absorbed
     api.terrains.createAtCell(cellX, cellY, types.pineWood);
+    api.terrains.createAtCell(cellX - 1, cellY, types.pineWood);
+    api.terrains.createAtCell(cellX + 1, cellY, types.pineWood);
+
     api.grid.reportActivityAtCell(cellX, cellY);
   }
   const nextHeight = height + 1;
