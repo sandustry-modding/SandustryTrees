@@ -53,7 +53,7 @@ Edit the folder for the feature you want to change. Numbers live in that folder'
 | `harvest/` | Mine trunk, drop wood/seeds, collapse |
 | `burn/` | Charcoal kiln |
 | `needles/` | Needle break, leaf-dust compost |
-| `content/` | Element and terrain register |
+| `registry/` | Element and terrain register |
 | `shared/` | Cell args, ids, data fields |
 | `worker/` | Sim hook wiring |
 
