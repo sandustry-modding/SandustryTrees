@@ -2,13 +2,15 @@
 
 ## Unreleased
 
+- Changed: source is split into feature folders (`plant/`, `grow/`, `canopy/`, `harvest/`, `burn/`, `needles/`) so each system is easier to rewrite.
+- Changed: a new pine waits about 12 ticks and pulls Pine Seeds from a **7×7** area around its root. Each absorbed seed resets the wait. More seeds make a taller, wider tree (up to 8 seeds).
+- Changed: one seed grows a **72-cell** pine, 5 cells wide, with a larger needle cone (was 48-cell / 3 wide). Extra seeds still merge and scale height, trunk width, and needles from that larger base.
 - Changed: planting a Pine Seed does not dry the Wet Sand.
 - Changed: you can grab a Pine Shoot with the grabber, the same way as a Pine Seed.
 - Changed: open-air Raw Wood burns to burnt residue. Sealed Raw Wood (no empty 8-neighbors) becomes a static flame for about 2 seconds, then Charcoal. Sealed fire crawls to one sealed neighbor at a time.
 - Changed: the trunk grows through its own needles so a pine can reach full height. Merged seeds still make a wider, taller tree.
 - Changed: Pine Seeds rest on wet sand and plant instead of sinking through it.
-- Changed: one seed grows the old 48-cell pine with the old needle cone.
-- Changed: extra seeds next to a growing pine merge into that tree. Each extra seed adds 16 cells of height. The trunk gets wider until half-width 4. The needle cone gets larger with the trunk.
+- Changed: extra seeds next to a growing pine merge into that tree. Each extra seed adds height. The trunk gets wider until the width cap. The needle cone gets larger with the trunk.
 - Changed: needles that you remove do not grow back. The tree only adds new needle cells when the trunk grows.
 - Added: mining a pine trunk drops one Pine Seed from the canopy tip. There is a 1% chance for a second seed one row below.
 

@@ -1,4 +1,4 @@
-import { registerSimHooks } from "./sim/hooks.ts";
+import { registerSimHooks } from "./worker/hooks.ts";
 
 const workerApi = sandkit.api as unknown as WorkerSandkitApi;
 

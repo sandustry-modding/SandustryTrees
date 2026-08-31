@@ -1,7 +1,7 @@
 import { isEnabled } from "@modkit/utils";
-import { registerElements } from "./elements/register.ts";
-import { registerHarvest } from "./terrains/harvest.ts";
-import { registerTerrains } from "./terrains/register.ts";
+import { registerElements } from "./content/elements.ts";
+import { registerTerrains } from "./content/terrains.ts";
+import { registerHarvest } from "./harvest/main.ts";
 
 const api = sandkit.api;
 
