@@ -7,7 +7,8 @@ export const ELEMENT = {
   pineShoot: `${root}:pineShoot`,
   pineNeedle: `${root}:pineNeedle`,
   wood: `${root}:wood`,
-  leafDust: `${root}:leafDust`
+  charcoal: `${root}:charcoal`,
+  leafDust: `${root}:leafDust`,
 } as const;
 
 export const NAME_KEY = {
@@ -16,9 +17,14 @@ export const NAME_KEY = {
   pineNeedle: `${root}.pineNeedle.name`,
   pineWood: `${root}.pineWood.name`,
   wood: `${root}.wood.name`,
-  leafDust: `${root}.leafDust.name`
+  charcoal: `${root}.charcoal.name`,
+  leafDust: `${root}.leafDust.name`,
+} as const;
+
+export const VANILLA_ELEMENT = {
+  burntResidue: "burntResidue",
 } as const;
 
 export const TERRAIN = {
-  pineWood: `${root}:pineWood`
+  pineWood: `${root}:pineWood`,
 } as const;
