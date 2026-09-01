@@ -11,6 +11,7 @@ export function register(): void {
     nameKey: NAME_KEY.pineNeedle,
     density: 40,
     matterType: sandkit.enums.MatterType.Static,
+    metaColor: 0x2f5a32,
     colors: {
       variants: [
         [47, 90, 50],

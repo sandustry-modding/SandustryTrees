@@ -11,6 +11,7 @@ export function register(): void {
     nameKey: NAME_KEY.leafDust,
     density: 55,
     matterType: sandkit.enums.MatterType.Powder,
+    metaColor: 0x6b7a3a,
     colors: {
       variants: [
         [107, 122, 58],

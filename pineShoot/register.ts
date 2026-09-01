@@ -11,6 +11,7 @@ export function register(): void {
     nameKey: NAME_KEY.pineShoot,
     density: 160,
     matterType: sandkit.enums.MatterType.Static,
+    metaColor: 0x5c3a21,
     colors: {
       variants: [
         [92, 58, 33],

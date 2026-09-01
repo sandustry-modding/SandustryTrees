@@ -11,6 +11,7 @@ export function register(): void {
     nameKey: NAME_KEY.wood,
     density: 120,
     matterType: sandkit.enums.MatterType.Solid,
+    metaColor: 0xb07a48,
     colors: {
       variants: [
         [176, 122, 72],
