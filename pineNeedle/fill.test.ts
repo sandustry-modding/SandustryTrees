@@ -1,0 +1,33 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { CANOPY_MIN_TRUNK_HEIGHT } from "./constants.ts";
+import { canopyDesiredCells } from "./fill.ts";
+
+function cellSet(cells: { x: number; y: number }[]): Set<string> {
+  return new Set(cells.map((cell) => `${cell.x},${cell.y}`));
+}
+
+test("canopyDesiredCells keeps side needles when the trunk grows", () => {
+  const rootX = 10;
+  const woodY = 100;
+  const shorter = canopyDesiredCells(rootX, woodY, CANOPY_MIN_TRUNK_HEIGHT);
+  const taller = canopyDesiredCells(rootX, woodY - 1, CANOPY_MIN_TRUNK_HEIGHT + 1);
+  const prior = cellSet(shorter);
+  const next = cellSet(taller);
+  for (const key of prior) {
+    const [x] = key.split(",").map(Number);
+    if (x === rootX) continue;
+    assert.ok(next.has(key), `lost needle cell ${key}`);
+  }
+  assert.ok(taller.length > shorter.length);
+});
+
+test("canopyDesiredCells widens with height", () => {
+  const rootX = 10;
+  const woodY = 100;
+  const short = canopyDesiredCells(rootX, woodY, CANOPY_MIN_TRUNK_HEIGHT);
+  const tall = canopyDesiredCells(rootX, woodY - 40, CANOPY_MIN_TRUNK_HEIGHT + 40);
+  const maxHalfShort = Math.max(...short.map((cell) => Math.abs(cell.x - rootX)));
+  const maxHalfTall = Math.max(...tall.map((cell) => Math.abs(cell.x - rootX)));
+  assert.ok(maxHalfTall > maxHalfShort);
+});
