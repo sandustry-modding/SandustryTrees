@@ -5,7 +5,6 @@ export type HarvestTypes = {
   pineNeedle: number;
   pineShoot: number;
   pineCone: number;
-  wetSand: number;
   wood: number;
   leafDust: number;
 };
@@ -23,13 +22,13 @@ type TreeApi = {
       cellX: number,
       cellY: number,
       elementType: number,
-      options?: { isFreeFalling?: boolean }
+      options?: { isFreeFalling?: boolean },
     ): void;
     replaceAtCell(
       cellX: number,
       cellY: number,
       elementType: number,
-      options?: { isFreeFalling?: boolean }
+      options?: { isFreeFalling?: boolean },
     ): void;
   };
   grid: { reportActivityAtCell(cellX: number, cellY: number): void };
@@ -42,13 +41,13 @@ type DropWriter = {
       cellX: number,
       cellY: number,
       elementType: number,
-      options?: { isFreeFalling?: boolean }
+      options?: { isFreeFalling?: boolean },
     ): void;
     replaceAtCell(
       cellX: number,
       cellY: number,
       elementType: number,
-      options?: { isFreeFalling?: boolean }
+      options?: { isFreeFalling?: boolean },
     ): void;
   };
 };
@@ -57,7 +56,7 @@ const DIRS: readonly [number, number][] = [
   [0, 1],
   [0, -1],
   [1, 0],
-  [-1, 0]
+  [-1, 0],
 ];
 
 const MAX_CELLS = 4096;
@@ -70,8 +69,11 @@ function isTreeCell(api: TreeApi, types: HarvestTypes, cellX: number, cellY: num
   return api.elements.isTypeAtCell(cellX, cellY, types.pineShoot);
 }
 
-function touchesWetSand(api: TreeApi, types: HarvestTypes, cellX: number, cellY: number): boolean {
-  return DIRS.some(([dx, dy]) => api.elements.isTypeAtCell(cellX + dx, cellY + dy, types.wetSand));
+function touchesDirt(api: TreeApi, cellX: number, cellY: number): boolean {
+  return DIRS.some(
+    ([dx, dy]) =>
+      api.terrains.getTypeAtCell(cellX + dx, cellY + dy) === sandkit.enums.CellType.Dirt,
+  );
 }
 
 function flood(api: TreeApi, types: HarvestTypes, start: Cell, seen: Set<string>): Cell[] {
@@ -105,14 +107,9 @@ function dropCell(api: TreeApi, types: HarvestTypes, cell: Cell, writer: DropWri
   api.grid.reportActivityAtCell(cell.x, cell.y);
 }
 
-function dropOrphans(
-  api: TreeApi,
-  types: HarvestTypes,
-  cells: Cell[],
-  writer: DropWriter
-): void {
+function dropOrphans(api: TreeApi, types: HarvestTypes, cells: Cell[], writer: DropWriter): void {
   const remainingWood = cells.filter(
-    (cell) => api.terrains.getTypeAtCell(cell.x, cell.y) === types.pineWood
+    (cell) => api.terrains.getTypeAtCell(cell.x, cell.y) === types.pineWood,
   );
   if (remainingWood.length === 0) {
     for (const cell of cells) dropCell(api, types, cell, writer);
@@ -136,10 +133,10 @@ function collapseComponent(
   api: TreeApi,
   types: HarvestTypes,
   cells: Cell[],
-  writer: DropWriter
+  writer: DropWriter,
 ): void {
   const wood = cells.filter(
-    (cell) => api.terrains.getTypeAtCell(cell.x, cell.y) === types.pineWood
+    (cell) => api.terrains.getTypeAtCell(cell.x, cell.y) === types.pineWood,
   );
   if (wood.length === 0) {
     for (const cell of cells) dropCell(api, types, cell, writer);
@@ -156,7 +153,7 @@ export function collapseIfDetached(
   types: HarvestTypes,
   originX: number,
   originY: number,
-  writer: DropWriter = api
+  writer: DropWriter = api,
 ): void {
   if (collapsing) return;
   collapsing = true;
@@ -179,7 +176,7 @@ export function collapseIfDetached(
         (cell) =>
           (api.terrains.getTypeAtCell(cell.x, cell.y) === types.pineWood ||
             api.elements.isTypeAtCell(cell.x, cell.y, types.pineShoot)) &&
-          touchesWetSand(api, types, cell.x, cell.y)
+          touchesDirt(api, cell.x, cell.y),
       );
       if (attached) continue;
       collapseComponent(api, types, cells, writer);

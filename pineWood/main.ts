@@ -9,9 +9,8 @@ export function harvestTypes(): HarvestTypes {
     pineNeedle: api.elements.getTypeById(ELEMENT.pineNeedle),
     pineShoot: api.elements.getTypeById(ELEMENT.pineShoot),
     pineCone: api.elements.getTypeById(ELEMENT.pineCone),
-    wetSand: sandkit.enums.ElementType.WetSand,
     wood: api.elements.getTypeById(ELEMENT.wood),
-    leafDust: api.elements.getTypeById(ELEMENT.leafDust)
+    leafDust: api.elements.getTypeById(ELEMENT.leafDust),
   };
 }
 
