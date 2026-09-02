@@ -1,5 +1,5 @@
 import { collapseIfDetached, type HarvestTypes } from "./collapse.ts";
-import { cellFromArgs } from "../shared/cell.ts";
+import { cellFromArgs } from "../../../shared/cell.ts";
 
 export function registerWorker(api: WorkerSandkitApi, types: HarvestTypes): void {
   try {

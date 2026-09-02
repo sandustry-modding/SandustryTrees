@@ -1,5 +1,5 @@
 import { igniteNeedlesTouchingFire, type NeedleBurnTypes } from "./burn.ts";
-import { cellFromArgs } from "../shared/cell.ts";
+import { cellFromArgs } from "../../../shared/cell.ts";
 
 export function registerWorker(api: WorkerSandkitApi, types: NeedleBurnTypes): void {
   const igniteFromFire = (args: Record<string, unknown>) => {

@@ -1,22 +1,22 @@
-import { ELEMENT, NAME_KEY } from "../shared/ids.ts";
+import { ELEMENT, NAME_KEY } from "../../../shared/ids.ts";
 
 const api = sandkit.api;
 
 export function register(): void {
   api.i18n.register("en", {
-    [NAME_KEY.pineCone]: "Pine Cone"
+    [NAME_KEY.leafDust]: "Leaf Dust"
   });
   const { elementType } = api.elements.register({
-    id: ELEMENT.pineCone,
-    nameKey: NAME_KEY.pineCone,
-    density: 90,
+    id: ELEMENT.leafDust,
+    nameKey: NAME_KEY.leafDust,
+    density: 55,
     matterType: sandkit.enums.MatterType.Powder,
-    metaColor: 0x6b4226,
+    metaColor: 0x6b7a3a,
     colors: {
       variants: [
-        [107, 66, 38],
-        [92, 54, 30],
-        [130, 82, 48]
+        [107, 122, 58],
+        [90, 104, 46],
+        [128, 138, 72]
       ]
     },
     isGrabbable: true,

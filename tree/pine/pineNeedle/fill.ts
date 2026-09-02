@@ -1,4 +1,4 @@
-import type { Cell } from "../shared/cell.ts";
+import type { Cell } from "../../../shared/cell.ts";
 import { TRUNK_HALF_WIDTH, TRUNK_HEIGHT } from "../pineShoot/constants.ts";
 import { CANOPY_LEAD, CANOPY_MAX_HALF, CANOPY_MIN_TRUNK_HEIGHT } from "./constants.ts";
 

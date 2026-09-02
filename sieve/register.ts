@@ -1,9 +1,6 @@
 import { SPRITE, STRUCTURE } from "../shared/ids.ts";
 import { modinfo } from "../modinfo.ts";
-import {
-  SIEVE_PINE_CONE_CHANCE,
-  SIEVE_PROCESS_INTERVAL_MS,
-} from "./constants.ts";
+import { SIEVE_PINE_CONE_CHANCE, SIEVE_PROCESS_INTERVAL_MS } from "./constants.ts";
 import { processSieve } from "./process.ts";
 
 const api = sandkit.api;
@@ -17,9 +14,7 @@ const SIEVE_I18N = {
 } as const;
 
 /** Solid top row — sand rests on the cell above and does not fall through. */
-const sieveShape = [
-  [CellType.Block, CellType.Block, CellType.Block, CellType.Block],
-] as const;
+const sieveShape = [[CellType.Block, CellType.Block, CellType.Block, CellType.Block]] as const;
 
 function unlockSieveForBuilding(): void {
   api.player.buildings.unlockById(STRUCTURE.sieve);

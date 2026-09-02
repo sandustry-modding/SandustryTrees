@@ -1,5 +1,5 @@
-import type { Cell } from "../shared/cell.ts";
-import { ORTHO8_DIRS } from "../shared/dirs.ts";
+import type { Cell } from "../../../shared/cell.ts";
+import { ORTHO8_DIRS } from "../../../shared/dirs.ts";
 import { NEEDLE_BURN_RESIDUE_CHANCE, NEEDLE_IGNITE_CHANCE } from "./constants.ts";
 
 export type NeedleBurnTypes = {

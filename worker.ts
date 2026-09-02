@@ -1,9 +1,9 @@
-import { registerWorker as registerPineConeWorker } from "./pineCone/worker.ts";
-import { registerWorker as registerPineShootWorker } from "./pineShoot/worker.ts";
-import { registerWorker as registerPineNeedleWorker } from "./pineNeedle/worker.ts";
-import { registerWorker as registerPineWoodWorker } from "./pineWood/worker.ts";
+import { registerWorker as registerPineConeWorker } from "./tree/pine/pineCone/worker.ts";
+import { registerWorker as registerPineShootWorker } from "./tree/pine/pineShoot/worker.ts";
+import { registerWorker as registerPineNeedleWorker } from "./tree/pine/pineNeedle/worker.ts";
+import { registerWorker as registerPineWoodWorker } from "./tree/pine/pineWood/worker.ts";
 import { registerWorker as registerWoodWorker } from "./wood/worker.ts";
-import type { HarvestTypes } from "./pineWood/collapse.ts";
+import type { HarvestTypes } from "./tree/pine/pineWood/collapse.ts";
 import type { BurnTypes } from "./wood/burn.ts";
 import { ELEMENT, TERRAIN, VANILLA_ELEMENT } from "./shared/ids.ts";
 

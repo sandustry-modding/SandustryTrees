@@ -1,5 +1,5 @@
-import { ELEMENT } from "../shared/ids.ts";
-import { modinfo } from "../modinfo.ts";
+import { ELEMENT } from "../../../shared/ids.ts";
+import { modinfo } from "../../../modinfo.ts";
 
 const api = sandkit.api;
 

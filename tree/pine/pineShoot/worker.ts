@@ -1,5 +1,5 @@
 import { growPineShoot, type GrowTypes } from "./grow.ts";
-import { cellFromArgs } from "../shared/cell.ts";
+import { cellFromArgs } from "../../../shared/cell.ts";
 
 export function registerWorker(api: WorkerSandkitApi, types: GrowTypes): void {
   const onDuration = (args: Record<string, unknown>, context: { cancel(): void }) => {

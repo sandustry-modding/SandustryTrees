@@ -48,16 +48,15 @@ Edit the folder for the feature you want to change. Numbers live in that folder'
 
 | Folder | What to edit |
 |---|---|
-| `pineCone/` | Cone + water → shoot |
-| `grow/` | Trunk height/width, growth ticks, size from seed count |
-| `canopy/` | Needle cone shape and fill |
-| `harvest/` | Mine trunk, drop wood/seeds, collapse |
-| `burn/` | Charcoal kiln |
-| `needles/` | Needle break, leaf-dust compost |
-| `sieve/` | Sand Sieve structure (sand → rare pine cone) |
-| `registry/` | Element and terrain register |
+| `tree/pine/pineCone/` | Cone + water → shoot |
+| `tree/pine/pineShoot/` | Trunk height, growth ticks, sapling |
+| `tree/pine/pineNeedle/` | Needle cone shape, fill, burn |
+| `tree/pine/pineWood/` | Living trunk, harvest, collapse |
+| `tree/pine/leafDust/` | Leaf Dust element |
+| `wood/` | Harvested wood kiln |
+| `charcoal/` | Charcoal element |
+| `sieve/` | Sand Sieve (sand → rare pine cone) |
 | `shared/` | Cell args, ids, data fields |
-| `worker/` | Sim hook wiring |
 
 ## Changelog
 

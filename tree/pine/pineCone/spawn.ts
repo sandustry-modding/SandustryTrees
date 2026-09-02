@@ -1,4 +1,4 @@
-import type { Cell } from "../shared/cell.ts";
+import type { Cell } from "../../../shared/cell.ts";
 import { canopyDesiredCells } from "../pineNeedle/fill.ts";
 import { CANOPY_SECOND_CONE_CHANCE } from "./constants.ts";
 

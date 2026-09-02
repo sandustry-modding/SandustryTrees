@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Changed: living pine tree code lives under `tree/pine/`. Wood, charcoal, and the sieve stay at the mod root.
 - Changed: pine growth no longer refills the whole canopy or flood-collapses the tree on every row. That was stalling the sim.
 - Added: **Sand Sieve** production structure. It slowly consumes dry sand from above and very rarely drops a pine cone below. Find it under **Building → Production** after a hard reload.
 - Added: the Pine Shoot is flammable. It burns to Burnt Residue.

@@ -1,5 +1,5 @@
 import { GROW_DURATION_TICKS } from "../pineShoot/constants.ts";
-import { DIRS } from "../shared/dirs.ts";
+import { DIRS } from "../../../shared/dirs.ts";
 
 export type PlantTypes = {
   pineCone: number;

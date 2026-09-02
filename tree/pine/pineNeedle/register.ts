@@ -1,4 +1,4 @@
-import { ELEMENT, NAME_KEY, VANILLA_ELEMENT } from "../shared/ids.ts";
+import { ELEMENT, NAME_KEY, VANILLA_ELEMENT } from "../../../shared/ids.ts";
 import { NEEDLE_BURN_RESIDUE_CHANCE } from "./constants.ts";
 
 const api = sandkit.api;

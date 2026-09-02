@@ -1,9 +1,5 @@
 import { ELEMENT } from "../shared/ids.ts";
-import {
-  SIEVE_HEIGHT,
-  SIEVE_PINE_CONE_CHANCE,
-  SIEVE_WIDTH,
-} from "./constants.ts";
+import { SIEVE_HEIGHT, SIEVE_PINE_CONE_CHANCE, SIEVE_WIDTH } from "./constants.ts";
 
 const api = sandkit.api;
 const { ElementType } = sandkit.enums;

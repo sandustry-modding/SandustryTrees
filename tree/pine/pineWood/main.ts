@@ -1,5 +1,5 @@
 import { collapseIfDetached, type HarvestTypes } from "./collapse.ts";
-import { ELEMENT, TERRAIN } from "../shared/ids.ts";
+import { ELEMENT, TERRAIN } from "../../../shared/ids.ts";
 
 const api = sandkit.api;
 

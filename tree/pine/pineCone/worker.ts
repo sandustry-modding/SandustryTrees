@@ -1,5 +1,5 @@
 import { tryPlantCone, type PlantTypes } from "./plant.ts";
-import { cellFromArgs, xyFromValue } from "../shared/cell.ts";
+import { cellFromArgs, xyFromValue } from "../../../shared/cell.ts";
 
 export function registerWorker(api: WorkerSandkitApi, types: PlantTypes): void {
   api.hooks.intercept(
