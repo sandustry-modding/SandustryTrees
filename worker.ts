@@ -1,10 +1,11 @@
 import { registerWorker as registerPineConeWorker } from "./pineCone/worker.ts";
 import { registerWorker as registerPineShootWorker } from "./pineShoot/worker.ts";
+import { registerWorker as registerPineNeedleWorker } from "./pineNeedle/worker.ts";
 import { registerWorker as registerPineWoodWorker } from "./pineWood/worker.ts";
 import { registerWorker as registerWoodWorker } from "./wood/worker.ts";
 import type { HarvestTypes } from "./pineWood/collapse.ts";
 import type { BurnTypes } from "./wood/burn.ts";
-import { ELEMENT, TERRAIN } from "./shared/ids.ts";
+import { ELEMENT, TERRAIN, VANILLA_ELEMENT } from "./shared/ids.ts";
 
 const workerApi = sandkit.api as unknown as WorkerSandkitApi;
 
@@ -34,6 +35,12 @@ function boot(): void {
   const types = resolveTypes(workerApi);
   registerPineConeWorker(workerApi, types);
   registerPineShootWorker(workerApi, types);
+  registerPineNeedleWorker(workerApi, {
+    pineNeedle: types.pineNeedle,
+    fire: sandkit.enums.ElementType.Fire,
+    flame: sandkit.enums.ElementType.Flame,
+    burntResidue: workerApi.elements.getTypeById(VANILLA_ELEMENT.burntResidue),
+  });
   registerPineWoodWorker(workerApi, types);
   registerWoodWorker(workerApi, resolveBurnTypes(workerApi));
   booted = true;

@@ -14,16 +14,16 @@ export function tryPlantCone(
   api: WorkerSandkitApi,
   types: PlantTypes,
   cellX: number,
-  cellY: number,
+  cellY: number
 ): boolean {
   if (!api.elements.isTypeAtCell(cellX, cellY, types.pineCone)) return false;
   const dirt = DIRS.map(([dx, dy]) => ({ x: cellX + dx, y: cellY + dy })).find((cell) =>
-    isDirtAt(api, cell.x, cell.y),
+    isDirtAt(api, cell.x, cell.y)
   );
   if (!dirt) return false;
   api.elements.replaceAtCell(cellX, cellY, types.pineShoot, {
     durationTicks: GROW_DURATION_TICKS,
-    dataFields: { field1: 0 },
+    dataFields: { field1: 0 }
   });
   api.grid.reportActivityAtCell(cellX, cellY);
   api.grid.reportActivityAtCell(dirt.x, dirt.y);

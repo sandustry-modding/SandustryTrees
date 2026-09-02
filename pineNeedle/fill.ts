@@ -7,6 +7,23 @@ export type CanopyTypes = {
   pineWood: number;
 };
 
+type NeedleGrid = {
+  grid: {
+    isCellEmptyAtCell(cellX: number, cellY: number): boolean;
+    isTerrainAtCell(cellX: number, cellY: number): boolean;
+  };
+  elements: {
+    getTypeAtCell(cellX: number, cellY: number): number | null;
+  };
+};
+
+/** True when the cell has no terrain and no element. */
+export function isVacantCell(api: NeedleGrid, cellX: number, cellY: number): boolean {
+  if (api.grid.isTerrainAtCell(cellX, cellY)) return false;
+  if (api.elements.getTypeAtCell(cellX, cellY) != null) return false;
+  return api.grid.isCellEmptyAtCell(cellX, cellY);
+}
+
 function cellKey(cell: Cell): string {
   return `${cell.x},${cell.y}`;
 }
@@ -64,8 +81,7 @@ export function fillCanopy(
     }
   }
   for (const cell of desired) {
-    if (api.terrains.getTypeAtCell(cell.x, cell.y) === types.pineWood) continue;
-    if (!api.grid.isCellEmptyAtCell(cell.x, cell.y)) continue;
+    if (!isVacantCell(api, cell.x, cell.y)) continue;
     api.elements.createAtCell(cell.x, cell.y, types.pineNeedle);
     api.grid.reportActivityAtCell(cell.x, cell.y);
   }

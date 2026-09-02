@@ -8,7 +8,7 @@ export function registerWorker(api: WorkerSandkitApi, types: PlantTypes): void {
       const cell = cellFromArgs(args);
       if (cell && tryPlantCone(api, types, cell.x, cell.y)) context.cancel();
     },
-    { guard: { elementType: types.pineCone } }
+    { guard: { elementType: types.pineCone } },
   );
 
   api.hooks.intercept("element:move", (args, context) => {
@@ -23,6 +23,6 @@ export function registerWorker(api: WorkerSandkitApi, types: PlantTypes): void {
       const cell = cellFromArgs(args);
       if (cell) tryPlantCone(api, types, cell.x, cell.y);
     },
-    { guard: { elementType: types.pineCone } }
+    { guard: { elementType: types.pineCone } },
   );
 }

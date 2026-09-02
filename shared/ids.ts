@@ -28,3 +28,11 @@ export const VANILLA_ELEMENT = {
 export const TERRAIN = {
   pineWood: `${root}:pineWood`,
 } as const;
+
+export const STRUCTURE = {
+  sieve: `${root}:sieve`,
+} as const;
+
+export const SPRITE = {
+  sieve: `${root}:sieve-sprite`,
+} as const;

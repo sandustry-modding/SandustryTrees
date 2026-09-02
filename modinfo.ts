@@ -19,7 +19,7 @@ export const modinfo = defineModInfo({
       type: "boolean",
       default: true,
       labelKey: "Mod enabled",
-      descriptionKey: "Turn pine trees, wood, and charcoal off.",
-    },
-  },
+      descriptionKey: "Turn pine trees, wood, and charcoal off."
+    }
+  }
 });

@@ -1,3 +1,4 @@
+import { spawnCanopyCones } from "../pineCone/spawn.ts";
 import { fillCanopy } from "../pineNeedle/fill.ts";
 import {
   GROW_DURATION_TICKS,
@@ -12,6 +13,7 @@ export type GrowTypes = {
   pineShoot: number;
   pineWood: number;
   pineNeedle: number;
+  pineCone: number;
 };
 
 function placeWood(
@@ -64,7 +66,10 @@ export function growPineShoot(
   const rootY = cellY + nextHeight - 1;
   widenBase(api, types, cellX, rootY, nextHeight);
   fillCanopy(api, types, cellX, cellY, nextHeight);
-  if (nextHeight >= TRUNK_HEIGHT) return;
+  if (nextHeight >= TRUNK_HEIGHT) {
+    spawnCanopyCones(api, types, cellX, cellY, nextHeight);
+    return;
+  }
   if (!api.grid.isCellEmptyAtCell(cellX, aboveY)) return;
   api.elements.createAtCell(cellX, aboveY, types.pineShoot, {
     durationTicks: GROW_DURATION_TICKS,

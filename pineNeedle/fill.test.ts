@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { CANOPY_MIN_TRUNK_HEIGHT } from "./constants.ts";
-import { canopyDesiredCells } from "./fill.ts";
+import { canopyDesiredCells, fillCanopy, isVacantCell } from "./fill.ts";
 
 function cellSet(cells: { x: number; y: number }[]): Set<string> {
   return new Set(cells.map((cell) => `${cell.x},${cell.y}`));
@@ -30,4 +30,60 @@ test("canopyDesiredCells widens with height", () => {
   const maxHalfShort = Math.max(...short.map((cell) => Math.abs(cell.x - rootX)));
   const maxHalfTall = Math.max(...tall.map((cell) => Math.abs(cell.x - rootX)));
   assert.ok(maxHalfTall > maxHalfShort);
+});
+
+test("isVacantCell is false for terrain or an element", () => {
+  const empty = {
+    grid: { isCellEmptyAtCell: () => true, isTerrainAtCell: () => false },
+    elements: { getTypeAtCell: () => null },
+  };
+  assert.equal(isVacantCell(empty, 0, 0), true);
+  assert.equal(
+    isVacantCell(
+      {
+        grid: { isCellEmptyAtCell: () => false, isTerrainAtCell: () => true },
+        elements: { getTypeAtCell: () => null },
+      },
+      0,
+      0,
+    ),
+    false,
+  );
+  assert.equal(
+    isVacantCell(
+      {
+        grid: { isCellEmptyAtCell: () => true, isTerrainAtCell: () => false },
+        elements: { getTypeAtCell: () => 7 },
+      },
+      0,
+      0,
+    ),
+    false,
+  );
+});
+
+test("fillCanopy does not write occupied cells", () => {
+  const occupied = new Set(["10,68", "12,67"]);
+  const created: string[] = [];
+  const api = {
+    grid: {
+      isCellEmptyAtCell: (x: number, y: number) => !occupied.has(`${x},${y}`),
+      isTerrainAtCell: (x: number, y: number) => occupied.has(`${x},${y}`),
+      reportActivityAtCell: () => {},
+    },
+    terrains: { getTypeAtCell: () => null },
+    elements: {
+      isTypeAtCell: () => false,
+      getTypeAtCell: (x: number, y: number) => (occupied.has(`${x},${y}`) ? 1 : null),
+      createAtCell: (x: number, y: number) => {
+        created.push(`${x},${y}`);
+      },
+      removeAtCell: () => {},
+    },
+  };
+  fillCanopy(api as unknown as WorkerSandkitApi, { pineNeedle: 2, pineWood: 3 }, 10, 70, CANOPY_MIN_TRUNK_HEIGHT);
+  for (const key of created) {
+    assert.equal(occupied.has(key), false, `replaced occupied cell ${key}`);
+  }
+  assert.ok(created.length > 0);
 });
