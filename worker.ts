@@ -33,7 +33,11 @@ let booted = false;
 function boot(): void {
   if (booted) return;
   const types = resolveTypes(workerApi);
-  registerPineConeWorker(workerApi, types);
+  registerPineConeWorker(workerApi, {
+    pineCone: types.pineCone,
+    pineShoot: types.pineShoot,
+    water: sandkit.enums.ElementType.Water,
+  });
   registerPineShootWorker(workerApi, types);
   registerPineNeedleWorker(workerApi, {
     pineNeedle: types.pineNeedle,

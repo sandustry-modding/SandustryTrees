@@ -81,9 +81,64 @@ test("fillCanopy does not write occupied cells", () => {
       removeAtCell: () => {},
     },
   };
-  fillCanopy(api as unknown as WorkerSandkitApi, { pineNeedle: 2, pineWood: 3 }, 10, 70, CANOPY_MIN_TRUNK_HEIGHT);
+  fillCanopy(
+    api as unknown as WorkerSandkitApi,
+    { pineNeedle: 2, pineWood: 3 },
+    10,
+    70,
+    CANOPY_MIN_TRUNK_HEIGHT,
+  );
   for (const key of created) {
     assert.equal(occupied.has(key), false, `replaced occupied cell ${key}`);
   }
   assert.ok(created.length > 0);
+});
+
+test("fillCanopy only writes cells that are new since previousHeight", () => {
+  const created: string[] = [];
+  const removed: string[] = [];
+  const needles = new Set<string>();
+  const api = {
+    grid: {
+      isCellEmptyAtCell: (x: number, y: number) => !needles.has(`${x},${y}`),
+      isTerrainAtCell: () => false,
+      reportActivityAtCell: () => {},
+    },
+    terrains: { getTypeAtCell: () => null },
+    elements: {
+      isTypeAtCell: (x: number, y: number) => needles.has(`${x},${y}`),
+      getTypeAtCell: (x: number, y: number) => (needles.has(`${x},${y}`) ? 2 : null),
+      createAtCell: (x: number, y: number) => {
+        const key = `${x},${y}`;
+        created.push(key);
+        needles.add(key);
+      },
+      removeAtCell: (x: number, y: number) => {
+        const key = `${x},${y}`;
+        removed.push(key);
+        needles.delete(key);
+      },
+    },
+  };
+  const rootX = 10;
+  fillCanopy(
+    api as unknown as WorkerSandkitApi,
+    { pineNeedle: 2, pineWood: 3 },
+    rootX,
+    70,
+    CANOPY_MIN_TRUNK_HEIGHT,
+  );
+  const first = created.length;
+  assert.ok(first > 0);
+  created.length = 0;
+  fillCanopy(
+    api as unknown as WorkerSandkitApi,
+    { pineNeedle: 2, pineWood: 3 },
+    rootX,
+    69,
+    CANOPY_MIN_TRUNK_HEIGHT + 1,
+    CANOPY_MIN_TRUNK_HEIGHT,
+  );
+  assert.ok(created.length > 0);
+  assert.ok(created.length < first);
 });

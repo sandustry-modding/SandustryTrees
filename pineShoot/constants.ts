@@ -1,3 +1,5 @@
+import { DEBUG } from "../pineCone/constants.ts";
+
 /** Mature pine trunk height in cells, including the root. */
 export const TRUNK_HEIGHT = 72;
 
@@ -18,6 +20,9 @@ export const TRUNK_TAPER_ROWS = 6;
 
 /** Ticks between growth steps. */
 export const GROW_DURATION_TICKS = 1;
+
+/** Trunk rows placed in one duration tick. More when `pineCone` DEBUG is on. */
+export const TRUNK_GROW_ROWS_PER_TICK = DEBUG ? 12 : 1;
 
 /** Extra half-width at the root for this trunk height. */
 export function trunkBaseExtraHalf(placedHeight: number): number {

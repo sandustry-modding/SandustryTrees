@@ -29,11 +29,7 @@ function cellKey(cell: Cell): string {
 }
 
 /** Needle cells for the canopy at this trunk height. */
-export function canopyDesiredCells(
-  rootX: number,
-  woodY: number,
-  height: number,
-): Cell[] {
+export function canopyDesiredCells(rootX: number, woodY: number, height: number): Cell[] {
   if (height < CANOPY_MIN_TRUNK_HEIGHT) return [];
   const growing = height < TRUNK_HEIGHT;
   const peakY = growing ? woodY - 1 : woodY;
@@ -62,27 +58,25 @@ export function fillCanopy(
   rootX: number,
   woodY: number,
   height: number,
+  previousHeight = 0,
 ): void {
   if (height < CANOPY_MIN_TRUNK_HEIGHT) return;
-  const growing = height < TRUNK_HEIGHT;
-  const peakY = growing ? woodY - 1 : woodY;
-  const tipY = peakY - CANOPY_LEAD;
-  const rows = CANOPY_LEAD + 1 + (height - CANOPY_MIN_TRUNK_HEIGHT);
   const desired = canopyDesiredCells(rootX, woodY, height);
+  const previousWoodY = woodY + Math.max(0, height - previousHeight);
+  const previous =
+    previousHeight > 0 && previousHeight < height
+      ? canopyDesiredCells(rootX, previousWoodY, previousHeight)
+      : [];
   const desiredKeys = new Set(desired.map(cellKey));
-  const clearTop = tipY - 1;
-  const clearBottom = woodY + rows;
-  for (let cellY = clearTop; cellY <= clearBottom; cellY += 1) {
-    for (let dx = -CANOPY_MAX_HALF; dx <= CANOPY_MAX_HALF; dx += 1) {
-      const cellX = rootX + dx;
-      if (!api.elements.isTypeAtCell(cellX, cellY, types.pineNeedle)) continue;
-      if (desiredKeys.has(`${cellX},${cellY}`)) continue;
-      api.elements.removeAtCell(cellX, cellY);
-    }
+  const previousKeys = new Set(previous.map(cellKey));
+  for (const cell of previous) {
+    if (desiredKeys.has(cellKey(cell))) continue;
+    if (!api.elements.isTypeAtCell(cell.x, cell.y, types.pineNeedle)) continue;
+    api.elements.removeAtCell(cell.x, cell.y);
   }
   for (const cell of desired) {
+    if (previousKeys.has(cellKey(cell))) continue;
     if (!isVacantCell(api, cell.x, cell.y)) continue;
     api.elements.createAtCell(cell.x, cell.y, types.pineNeedle);
-    api.grid.reportActivityAtCell(cell.x, cell.y);
   }
 }
