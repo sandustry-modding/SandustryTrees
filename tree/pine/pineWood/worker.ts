@@ -7,9 +7,12 @@ export function registerWorker(api: WorkerSandkitApi, types: HarvestTypes): void
       "terrain:updated",
       (payload) => {
         const cell = cellFromArgs(payload);
-        if (cell) collapseIfDetached(api, types, cell.x, cell.y);
+        if (!cell) return;
+        // Creates (growth) still have pine wood here. Harvest only after the cell is gone.
+        if (api.terrains.getTypeAtCell(cell.x, cell.y) === types.pineWood) return;
+        collapseIfDetached(api, types, cell.x, cell.y);
       },
-      { guard: { terrainType: types.pineWood } }
+      { guard: { terrainType: types.pineWood } },
     );
   } catch {
     /* Main-thread terrain:destroyed still runs. */

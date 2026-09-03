@@ -21,7 +21,7 @@ export function registerMain(): void {
           const cellX = origin.x + dx;
           const cellY = origin.y + dy;
           if (!api.elements.isTypeAtCell(cellX, cellY, needle)) continue;
-          writer.elements.replaceAtCell(cellX, cellY, ELEMENT.leafDust, {
+          writer.elements.replaceAtCell(cellX, cellY, ELEMENT.compost, {
             isFreeFalling: true,
           });
           api.grid.reportActivityAtCell(cellX, cellY);

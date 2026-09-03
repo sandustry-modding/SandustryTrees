@@ -10,7 +10,7 @@ export function harvestTypes(): HarvestTypes {
     pineShoot: api.elements.getTypeById(ELEMENT.pineShoot),
     pineCone: api.elements.getTypeById(ELEMENT.pineCone),
     wood: api.elements.getTypeById(ELEMENT.wood),
-    leafDust: api.elements.getTypeById(ELEMENT.leafDust)
+    compost: api.elements.getTypeById(ELEMENT.compost),
   };
 }
 

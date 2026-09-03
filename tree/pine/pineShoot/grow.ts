@@ -1,5 +1,6 @@
 import { spawnCanopyCones } from "../pineCone/spawn.ts";
 import { fillCanopy } from "../pineNeedle/fill.ts";
+import { runWithoutCollapse } from "../pineWood/collapse.ts";
 import {
   GROW_DURATION_TICKS,
   TRUNK_BASE_FLARE_ROWS,
@@ -51,6 +52,17 @@ function widenBase(
   }
 }
 
+function clearNeedlesAt(
+  api: WorkerSandkitApi,
+  types: GrowTypes,
+  cellX: number,
+  cellY: number,
+): void {
+  if (api.elements.isTypeAtCell(cellX, cellY, types.pineNeedle)) {
+    api.elements.removeAtCell(cellX, cellY);
+  }
+}
+
 function growOneRow(
   api: WorkerSandkitApi,
   types: GrowTypes,
@@ -64,6 +76,7 @@ function growOneRow(
   if (nextHeight >= TRUNK_HEIGHT) {
     return { nextHeight, shootY: cellY, blocked: false, mature: true };
   }
+  clearNeedlesAt(api, types, cellX, aboveY);
   if (!api.grid.isCellEmptyAtCell(cellX, aboveY)) {
     return { nextHeight, shootY: cellY, blocked: true, mature: false };
   }
@@ -87,6 +100,15 @@ function finishShape(
 }
 
 export function growPineShoot(
+  api: WorkerSandkitApi,
+  types: GrowTypes,
+  cellX: number,
+  cellY: number,
+): void {
+  runWithoutCollapse(() => growPineShootInner(api, types, cellX, cellY));
+}
+
+function growPineShootInner(
   api: WorkerSandkitApi,
   types: GrowTypes,
   cellX: number,

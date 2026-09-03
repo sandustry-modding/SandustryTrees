@@ -6,7 +6,7 @@ export type HarvestTypes = {
   pineShoot: number;
   pineCone: number;
   wood: number;
-  leafDust: number;
+  compost: number;
 };
 
 type Cell = { x: number; y: number };
@@ -63,6 +63,20 @@ const MAX_CELLS = 4096;
 
 let collapsing = false;
 
+/** Run work without harvest collapse (pine-wood creates during growth). */
+export function runWithoutCollapse(work: () => void): void {
+  if (collapsing) {
+    work();
+    return;
+  }
+  collapsing = true;
+  try {
+    work();
+  } finally {
+    collapsing = false;
+  }
+}
+
 function isTrunkCell(api: TreeApi, types: HarvestTypes, cellX: number, cellY: number): boolean {
   if (api.terrains.getTypeAtCell(cellX, cellY) === types.pineWood) return true;
   return api.elements.isTypeAtCell(cellX, cellY, types.pineShoot);
@@ -114,7 +128,7 @@ function dropCell(api: TreeApi, types: HarvestTypes, cell: Cell, writer: DropWri
     writer.terrains.removeAtCell(cell.x, cell.y);
     writer.elements.createAtCell(cell.x, cell.y, types.wood, fall);
   } else if (api.elements.isTypeAtCell(cell.x, cell.y, types.pineNeedle)) {
-    writer.elements.replaceAtCell(cell.x, cell.y, types.leafDust, fall);
+    writer.elements.replaceAtCell(cell.x, cell.y, types.compost, fall);
   } else if (api.elements.isTypeAtCell(cell.x, cell.y, types.pineShoot)) {
     writer.elements.replaceAtCell(cell.x, cell.y, types.wood, fall);
   }

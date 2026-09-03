@@ -8,7 +8,7 @@ export const ELEMENT = {
   pineNeedle: `${root}:pineNeedle`,
   wood: `${root}:wood`,
   charcoal: `${root}:charcoal`,
-  leafDust: `${root}:leafDust`,
+  compost: `${root}:compost`,
 } as const;
 
 export const NAME_KEY = {
@@ -18,7 +18,7 @@ export const NAME_KEY = {
   pineWood: `${root}.pineWood.name`,
   wood: `${root}.wood.name`,
   charcoal: `${root}.charcoal.name`,
-  leafDust: `${root}.leafDust.name`,
+  compost: `${root}.compost.name`,
 } as const;
 
 export const VANILLA_ELEMENT = {

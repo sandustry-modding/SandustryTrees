@@ -7,6 +7,10 @@ export type PlantTypes = {
   water: number;
 };
 
+function isDirtBelow(api: WorkerSandkitApi, cellX: number, cellY: number): boolean {
+  return api.terrains.getTypeAtCell(cellX, cellY + 1) === sandkit.enums.CellType.Dirt;
+}
+
 export function tryPlantCone(
   api: WorkerSandkitApi,
   types: PlantTypes,
@@ -14,6 +18,7 @@ export function tryPlantCone(
   cellY: number,
 ): boolean {
   if (!api.elements.isTypeAtCell(cellX, cellY, types.pineCone)) return false;
+  if (!isDirtBelow(api, cellX, cellY)) return false;
   const water = DIRS.map(([dx, dy]) => ({ x: cellX + dx, y: cellY + dy })).find((cell) =>
     api.elements.isTypeAtCell(cell.x, cell.y, types.water),
   );
