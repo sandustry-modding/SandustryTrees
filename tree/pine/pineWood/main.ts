@@ -22,7 +22,9 @@ export function registerMain(): void {
     const cellY = payload.cellY ?? payload.y;
     if (typeof cellX !== "number" || typeof cellY !== "number") return;
     api.grid.mutate((writer) => {
-      collapseIfDetached(api, types, cellX, cellY, writer);
+      collapseIfDetached(api, types, cellX, cellY, writer, {
+        omitCell: { x: cellX, y: cellY },
+      });
     });
   });
 }

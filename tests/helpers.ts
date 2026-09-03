@@ -5,8 +5,8 @@ import { modinfo } from "../modinfo.ts";
 export const MOD_ID = modinfo.id;
 export { ELEMENT, STRUCTURE, TERRAIN };
 
-/** Void Empty.save platform, away from other sample fixtures. */
-export const PAD = { x: 2048, y: 1608 };
+/** Void platform centre in the 1024×1024 integration save (see modkit/test/helpers/world.ts). */
+export const PAD = { x: 512, y: 511 };
 export const CELL_SIZE = 4;
 
 export async function skipUnlessLoaded(ids: readonly string[], t: TestContext): Promise<boolean> {

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fixed: chopping the base of a pine trunk collapses the tree again. Main-thread harvest reads still saw the removed cell as trunk until mutate applied, so the tree looked attached to dirt.
+- Fixed: detached trunk collapse finishes in the same harvest instead of stopping after the first batch. Main-thread harvest collapses the whole detached trunk in one mutate pass.
 - Changed: living pine tree code lives under `tree/pine/`. Wood, charcoal, compost, and the sieve stay at the mod root.
 - Fixed: the shoot grows through its own needles, so the trunk can reach full height.
 - Changed: pine growth no longer refills the whole canopy or flood-collapses the tree on every row. That was stalling the sim.
