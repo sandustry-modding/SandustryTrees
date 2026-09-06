@@ -1,11 +1,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { CANOPY_MIN_TRUNK_HEIGHT } from "./constants.ts";
+import { treesConfigDefaults as d } from "../../../config.ts";
 import { canopyDesiredCells, desiredBranchCells, fillCanopy, isVacantCell } from "./fill.ts";
-import { TRUNK_HALF_WIDTH, TRUNK_HEIGHT } from "../oakShoot/constants.ts";
 
 const ROOT_X = 10;
 const ROOT_Y = 148;
+const CANOPY_MIN_TRUNK_HEIGHT = d.oakCanopyMinTrunkHeight;
+const TRUNK_FORK_HEIGHT = d.oakTrunkForkHeight;
+const TRUNK_HALF_WIDTH = d.oakTrunkHalfWidth;
+const TRUNK_HEIGHT = d.oakTrunkHeight;
 
 test("canopyDesiredCells grows the crown toward maturity", () => {
   const young = canopyDesiredCells(ROOT_X, ROOT_Y, CANOPY_MIN_TRUNK_HEIGHT);
@@ -40,12 +43,32 @@ test("desiredBranchCells forks stay 4-connected", () => {
 });
 
 test("desiredBranchCells forks past the trunk", () => {
-  const young = desiredBranchCells(ROOT_X, ROOT_Y, 22);
+  const young = desiredBranchCells(ROOT_X, ROOT_Y, TRUNK_FORK_HEIGHT + 2);
   const mature = desiredBranchCells(ROOT_X, ROOT_Y, TRUNK_HEIGHT);
   assert.ok(young.length > 0);
   assert.ok(mature.length > young.length);
   const matureHalf = Math.max(...mature.map((cell) => Math.abs(cell.x - ROOT_X)));
   assert.ok(matureHalf > TRUNK_HALF_WIDTH);
+});
+
+test("desiredBranchCells crown leaders are two cells wide", () => {
+  const cells = desiredBranchCells(ROOT_X, ROOT_Y, TRUNK_HEIGHT);
+  const offTrunk = cells.filter((cell) => Math.abs(cell.x - ROOT_X) > TRUNK_HALF_WIDTH);
+  const byY = new Map<number, number>();
+  for (const cell of offTrunk) {
+    byY.set(cell.y, (byY.get(cell.y) ?? 0) + 1);
+  }
+  const wideRows = [...byY.values()].filter((count) => count >= 2).length;
+  assert.ok(wideRows >= 8, `expected 2-wide leaders, wideRows=${wideRows}`);
+});
+
+test("desiredBranchCells has no side limbs below the crown split", () => {
+  const cells = desiredBranchCells(ROOT_X, ROOT_Y, TRUNK_HEIGHT);
+  const splitY = ROOT_Y - TRUNK_FORK_HEIGHT;
+  const lowSide = cells.filter(
+    (cell) => Math.abs(cell.x - ROOT_X) > TRUNK_HALF_WIDTH && cell.y > splitY,
+  );
+  assert.equal(lowSide.length, 0);
 });
 
 test("desiredBranchCells stay put as the trunk grows", () => {
@@ -74,6 +97,17 @@ test("desiredBranchCells stay put as the trunk grows", () => {
     if (higher[1] <= lower[1]) grewEveryRow = false;
   }
   assert.equal(grewEveryRow, false, "limb width must not form an upward funnel");
+});
+
+test("canopyDesiredCells fills the crotch between crown leaders", () => {
+  const leaves = new Set(
+    canopyDesiredCells(ROOT_X, ROOT_Y, TRUNK_HEIGHT).map((cell) => `${cell.x},${cell.y}`),
+  );
+  const splitY = ROOT_Y - TRUNK_FORK_HEIGHT;
+  const peakY = ROOT_Y - TRUNK_HEIGHT + 1;
+  const midY = Math.round((splitY + peakY) / 2);
+  assert.equal(leaves.has(`${ROOT_X},${midY}`), true);
+  assert.equal(leaves.has(`${ROOT_X},${splitY - 2}`), true);
 });
 
 test("canopyDesiredCells leaves gaps beside inner limbs", () => {

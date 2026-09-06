@@ -1,6 +1,6 @@
 import type { Cell } from "../../../shared/cell.ts";
 import { canopyDesiredCells } from "../pineNeedle/fill.ts";
-import { CANOPY_SECOND_CONE_CHANCE } from "./constants.ts";
+import { config } from "../../../config.ts";
 
 export type CanopyConeTypes = {
   pineNeedle: number;
@@ -47,7 +47,7 @@ export function spawnCanopyCones(
   const cells = pickCanopyConeCells(
     needles,
     api.random.float(0, 1),
-    shouldSpawnSecondCone(api.random.float(0, 1), CANOPY_SECOND_CONE_CHANCE),
+    shouldSpawnSecondCone(api.random.float(0, 1), config.pineCanopySecondConeChance),
     api.random.float(0, 1),
   );
   for (const cell of cells) {

@@ -1,6 +1,6 @@
 import type { Cell } from "../../../shared/cell.ts";
 import { canopyDesiredCells } from "../oakLeaf/fill.ts";
-import { CANOPY_SECOND_ACORN_CHANCE } from "./constants.ts";
+import { config } from "../../../config.ts";
 
 export type CanopyAcornTypes = {
   oakLeaf: number;
@@ -47,7 +47,7 @@ export function spawnCanopyAcorns(
   const cells = pickCanopyAcornCells(
     leaves,
     api.random.float(0, 1),
-    shouldSpawnSecondAcorn(api.random.float(0, 1), CANOPY_SECOND_ACORN_CHANCE),
+    shouldSpawnSecondAcorn(api.random.float(0, 1), config.oakCanopySecondAcornChance),
     api.random.float(0, 1),
   );
   for (const cell of cells) {

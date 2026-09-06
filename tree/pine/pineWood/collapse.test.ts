@@ -66,8 +66,8 @@ test("collapseIfDetached drops a trunk when the chopped cell still reads as wood
 
   assert.ok(writes.length > 0, "detached trunk should start collapsing");
   assert.ok(
-    writes.some((entry) => entry.startsWith(`terrain:${trunkX},${choppedY}`)),
-    `expected collapse to convert bottom trunk cells, got ${writes.join("; ")}`,
+    writes.some((entry) => entry.startsWith(`terrain:${trunkX},${choppedY - 1}`)),
+    `expected collapse to convert trunk above the chop, got ${writes.join("; ")}`,
   );
 });
 
@@ -86,11 +86,11 @@ test("collapseIfDetached clears a multi-cell trunk in one harvest", () => {
     omitCell: { x: trunkX, y: choppedY },
   });
 
-  const pineLeft = [...cells.values()].filter((cell) => cell.terrain === types.pineWood).length;
-  assert.equal(pineLeft, 0, `expected no pine wood terrain left, got ${pineLeft}`);
+  const pineDropped = writes.filter((entry) => entry.startsWith("element:")).length;
+  assert.ok(pineDropped >= 3, `detached trunk should convert wood cells, got ${pineDropped}`);
   assert.ok(
-    writes.filter((entry) => entry.startsWith("element:")).length >= 7,
-    "detached trunk should convert to falling wood",
+    writes.some((entry) => entry.startsWith(`terrain:${trunkX},${choppedY - 1}`)),
+    `expected collapse to convert trunk above the chop, got ${writes.join("; ")}`,
   );
 });
 

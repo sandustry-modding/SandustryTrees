@@ -1,4 +1,4 @@
-import { GROW_DURATION_TICKS } from "../pineShoot/constants.ts";
+import { config } from "../../../config.ts";
 import { DIRS } from "../../../shared/dirs.ts";
 
 export type PlantTypes = {
@@ -25,7 +25,7 @@ export function tryPlantCone(
   if (!water) return false;
   api.elements.removeAtCell(water.x, water.y);
   api.elements.replaceAtCell(cellX, cellY, types.pineShoot, {
-    durationTicks: GROW_DURATION_TICKS,
+    durationTicks: config.pineGrowDurationTicks,
     dataFields: { field1: 0 },
   });
   api.grid.reportActivityAtCell(cellX, cellY);

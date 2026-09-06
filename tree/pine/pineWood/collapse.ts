@@ -1,4 +1,4 @@
-import { WOOD_COLLAPSE_PER_TICK } from "./constants.ts";
+import { config } from "../../../config.ts";
 
 export type HarvestTypes = {
   pineWood: number;
@@ -226,7 +226,7 @@ function collapseComponent(
     return;
   }
   wood.sort((a, b) => b.y - a.y || a.x - b.x);
-  const batchLimit = writer === api ? WOOD_COLLAPSE_PER_TICK : wood.length;
+  const batchLimit = writer === api ? config.pineWoodCollapsePerTick : wood.length;
   const limit = Math.min(batchLimit, wood.length);
   for (let i = 0; i < limit; i += 1) dropCell(api, types, wood[i], writer);
   dropOrphans(api, types, cells, writer);

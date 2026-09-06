@@ -11,13 +11,13 @@ function pineWoodGrain(): [number, number, number][][] {
     GRAIN_LITE.map((base, col) => {
       const jitter = ((col * 7 + row * 3) % 7) - 3;
       return [GRAIN_HUE[col], GRAIN_SAT[col], Math.max(10, Math.min(46, base + jitter))];
-    })
+    }),
   );
 }
 
 export function register(): void {
   api.i18n.register("en", {
-    [NAME_KEY.pineWood]: "Pine Wood"
+    [NAME_KEY.pineWood]: "Pine Wood",
   });
 
   const colorsHSL = pineWoodGrain();
@@ -30,9 +30,9 @@ export function register(): void {
     metaColor: 0x5c3a21,
     colorPattern: {
       size: [colorsHSL[0].length, colorsHSL.length],
-      colorsHSL
+      colorsHSL,
     },
-    output: { elementType: woodType, chance: 1 }
+    output: { elementType: woodType, chance: 1 },
   });
 
   api.discoveries.addTerrainByType(cellType);

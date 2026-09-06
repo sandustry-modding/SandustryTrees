@@ -1,5 +1,5 @@
 import { ELEMENT, NAME_KEY } from "../shared/ids.ts";
-import { COMPOST_DENSITY, WET_COMPOST_DENSITY } from "./constants.ts";
+import { config } from "../config.ts";
 
 const api = sandkit.api;
 
@@ -11,7 +11,7 @@ export function register(): void {
   const dry = api.elements.register({
     id: ELEMENT.compost,
     nameKey: NAME_KEY.compost,
-    density: COMPOST_DENSITY,
+    density: config.compostDensity,
     matterType: sandkit.enums.MatterType.Powder,
     metaColor: 0x6b7a3a,
     colors: {
@@ -30,7 +30,7 @@ export function register(): void {
   const wet = api.elements.register({
     id: ELEMENT.wetCompost,
     nameKey: NAME_KEY.wetCompost,
-    density: WET_COMPOST_DENSITY,
+    density: config.wetCompostDensity,
     matterType: sandkit.enums.MatterType.Powder,
     metaColor: 0x4a5c28,
     colors: {

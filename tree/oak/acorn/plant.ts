@@ -1,4 +1,4 @@
-import { GROW_DURATION_TICKS } from "../oakShoot/constants.ts";
+import { config } from "../../../config.ts";
 import { DIRS } from "../../../shared/dirs.ts";
 
 export type PlantTypes = {
@@ -25,7 +25,7 @@ export function tryPlantAcorn(
   if (!water) return false;
   api.elements.removeAtCell(water.x, water.y);
   api.elements.replaceAtCell(cellX, cellY, types.oakShoot, {
-    durationTicks: GROW_DURATION_TICKS,
+    durationTicks: config.oakGrowDurationTicks,
     dataFields: { field1: 0 },
   });
   api.grid.reportActivityAtCell(cellX, cellY);

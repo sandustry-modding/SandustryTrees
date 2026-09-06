@@ -1,10 +1,9 @@
 import { SPRITE, STRUCTURE } from "../shared/ids.ts";
 import { modinfo } from "../modinfo.ts";
-import { SIEVE_PINE_CONE_CHANCE, SIEVE_PROCESS_INTERVAL_MS } from "./constants.ts";
+import { config } from "../config.ts";
 import { processSieve } from "./process.ts";
 
 const api = sandkit.api;
-const { CellType } = sandkit.enums;
 
 const SIEVE_PROCESSOR_ID = `${modinfo.id}:sieve:process`;
 
@@ -14,7 +13,10 @@ const SIEVE_I18N = {
 } as const;
 
 /** Solid top row — sand rests on the cell above and does not fall through. */
-const sieveShape = [[CellType.Block, CellType.Block, CellType.Block, CellType.Block]] as const;
+function sieveShape(): number[][] {
+  const { CellType } = sandkit.enums;
+  return [Array.from({ length: config.sieveWidth }, () => CellType.Block)];
+}
 
 function unlockSieveForBuilding(): void {
   api.player.buildings.unlockById(STRUCTURE.sieve);
@@ -39,7 +41,7 @@ export async function registerSieve(): Promise<void> {
       alwaysUnlocked: true,
       buildModes: [{ type: "single" }],
       variants: [{ id: STRUCTURE.sieve, angles: [0, 90, 180, 270] }],
-      shape: sieveShape.map((row) => [...row]),
+      shape: sieveShape().map((row) => [...row]),
       useRawShape: true,
       render: {
         imageName: SPRITE.sieve,
@@ -52,7 +54,7 @@ export async function registerSieve(): Promise<void> {
 
   api.structures.processing.register(SIEVE_PROCESSOR_ID, {
     structureType: STRUCTURE.sieve,
-    intervalMs: SIEVE_PROCESS_INTERVAL_MS,
+    intervalMs: config.sieveProcessIntervalMs,
     process: processSieve,
   });
 
@@ -60,6 +62,6 @@ export async function registerSieve(): Promise<void> {
   api.events.on("game:ready", unlockSieveForBuilding);
 
   console.log(
-    `loaded — ${STRUCTURE.sieve} every ${SIEVE_PROCESS_INTERVAL_MS}ms, pine cone chance ${SIEVE_PINE_CONE_CHANCE}`,
+    `loaded — ${STRUCTURE.sieve} every ${config.sieveProcessIntervalMs}ms, pine cone chance ${config.sievePineConeChance}`,
   );
 }

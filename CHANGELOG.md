@@ -2,16 +2,27 @@
 
 ## Unreleased
 
+- Added: **F3** live-config panel edits Trees knobs.
+  The same values stay on `irishbruseTrees`.
+  F3 rows use the raw keys (`debug`, `pineTrunkHeight`, …).
+- Changed: pine and oak trunks start 1 cell wide.
+  They thicken toward their mature width as they grow.
+
 - Fixed: oak limbs stay at fixed heights on the trunk.
-The shoot no longer stamps a new arm on every row, so the tree does not grow into a wood funnel.
+  The shoot no longer stamps a new arm on every row, so the tree does not grow into a wood funnel.
+- Changed: the upper oak trunk splits into two crown leaders.
+  There are no low side limbs.
+- Changed: oak crown leaders are two cells wide.
+- Changed: oak leaves overlap into a dense crown.
+  The crotch between the two leaders is filled.
 - Added: **Oak** trees.
-Plant an **Acorn** on Dirt with Water.
-The trunk is shorter and thicker than pine.
-Wood forks into 4-connected crown branches so the limbs stay on the tree.
-Leaves sit in tufts on the limb tips.
-Chop the trunk for the same **Wood**.
-Leaves become **Compost**.
-The Sand Sieve still drops only Pine Cone.
+  Plant an **Acorn** on Dirt with Water.
+  The trunk is shorter and thicker than pine.
+  Wood forks into 4-connected crown branches so the limbs stay on the tree.
+  Leaves sit in tufts on the limb tips.
+  Chop the trunk for the same **Wood**.
+  Leaves become **Compost**.
+  The Sand Sieve still drops only Pine Cone.
 - Added: **Water** turns settled **Compost** into denser **Wet Compost**. A cell must be unable to fall or slide, then wait about 60 ticks. Wet Compost must stay at rest about 180 ticks, then each cell waits a random extra time before it becomes **Dirt**, so a pile turns gradually.
 - Fixed: dirt from Wet Compost is placed in the same sim tick as the powder is removed, so a pile does not leave empty holes. Nearby shadows still redraw on the main thread.
 - Fixed: new and removed **Pine Wood** redraws nearby shadows the same way, so a trunk is not split by a stuck shadow.

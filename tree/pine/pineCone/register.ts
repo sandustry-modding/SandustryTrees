@@ -4,7 +4,7 @@ const api = sandkit.api;
 
 export function register(): void {
   api.i18n.register("en", {
-    [NAME_KEY.pineCone]: "Pine Cone"
+    [NAME_KEY.pineCone]: "Pine Cone",
   });
   const { elementType } = api.elements.register({
     id: ELEMENT.pineCone,
@@ -16,11 +16,11 @@ export function register(): void {
       variants: [
         [107, 66, 38],
         [92, 54, 30],
-        [130, 82, 48]
-      ]
+        [130, 82, 48],
+      ],
     },
     isGrabbable: true,
-    isTransportable: true
+    isTransportable: true,
   });
   api.discoveries.addElementByType(elementType);
 }

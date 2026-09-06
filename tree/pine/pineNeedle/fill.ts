@@ -1,6 +1,5 @@
+import { config } from "../../../config.ts";
 import type { Cell } from "../../../shared/cell.ts";
-import { TRUNK_HALF_WIDTH, TRUNK_HEIGHT } from "../pineShoot/constants.ts";
-import { CANOPY_LEAD, CANOPY_MAX_HALF, CANOPY_MIN_TRUNK_HEIGHT } from "./constants.ts";
 
 export type CanopyTypes = {
   pineNeedle: number;
@@ -30,20 +29,23 @@ function cellKey(cell: Cell): string {
 
 /** Needle cells for the canopy at this trunk height. */
 export function canopyDesiredCells(rootX: number, woodY: number, height: number): Cell[] {
-  if (height < CANOPY_MIN_TRUNK_HEIGHT) return [];
-  const growing = height < TRUNK_HEIGHT;
+  if (height < config.pineCanopyMinTrunkHeight) return [];
+  const growing = height < config.pineTrunkHeight;
   const peakY = growing ? woodY - 1 : woodY;
-  const tipY = peakY - CANOPY_LEAD;
-  const rows = CANOPY_LEAD + 1 + (height - CANOPY_MIN_TRUNK_HEIGHT);
-  const growSpan = Math.max(1, TRUNK_HEIGHT - CANOPY_MIN_TRUNK_HEIGHT);
-  const growT = Math.min(1, (height - CANOPY_MIN_TRUNK_HEIGHT) / growSpan);
+  const tipY = peakY - config.pineCanopyLead;
+  const rows = config.pineCanopyLead + 1 + (height - config.pineCanopyMinTrunkHeight);
+  const growSpan = Math.max(1, config.pineTrunkHeight - config.pineCanopyMinTrunkHeight);
+  const growT = Math.min(1, (height - config.pineCanopyMinTrunkHeight) / growSpan);
   const maxHalf =
-    TRUNK_HALF_WIDTH + 1 + Math.round(growT * (CANOPY_MAX_HALF - TRUNK_HALF_WIDTH - 1));
+    config.pineTrunkHalfWidth +
+    1 +
+    Math.round(growT * (config.pineCanopyMaxHalf - config.pineTrunkHalfWidth - 1));
   const cells: Cell[] = [];
   for (let row = 0; row < rows; row += 1) {
     const cellY = tipY + row;
     const t = rows <= 1 ? 1 : row / (rows - 1);
-    const half = TRUNK_HALF_WIDTH + 1 + Math.round(t * (maxHalf - TRUNK_HALF_WIDTH - 1));
+    const half =
+      config.pineTrunkHalfWidth + 1 + Math.round(t * (maxHalf - config.pineTrunkHalfWidth - 1));
     for (let dx = -half; dx <= half; dx += 1) {
       if (growing && cellY === peakY && dx === 0) continue;
       cells.push({ x: rootX + dx, y: cellY });
@@ -60,7 +62,7 @@ export function fillCanopy(
   height: number,
   previousHeight = 0,
 ): void {
-  if (height < CANOPY_MIN_TRUNK_HEIGHT) return;
+  if (height < config.pineCanopyMinTrunkHeight) return;
   const desired = canopyDesiredCells(rootX, woodY, height);
   const previousWoodY = woodY + Math.max(0, height - previousHeight);
   const previous =

@@ -1,13 +1,8 @@
+import { config } from "../config.ts";
 import type { Cell } from "../shared/cell.ts";
 import { CARDINAL_DIRS } from "../shared/dirs.ts";
 import { countAdjacentAir } from "./air.ts";
-import {
-  IGNITE_PRIME_FIELD,
-  PHYSICS_SKIP,
-  WOOD_DENSITY,
-  WOOD_FLAME_DURATION_SEC,
-  WOOD_SPREAD_DELAY_TICKS,
-} from "./constants.ts";
+import { IGNITE_PRIME_FIELD, PHYSICS_SKIP } from "./constants.ts";
 
 export type BurnTypes = {
   wood: number;
@@ -44,16 +39,16 @@ function isSealed(api: WorkerSandkitApi, cellX: number, cellY: number): boolean 
   return countAdjacentAir((x, y) => api.grid.isCellEmptyAtCell(x, y), cellX, cellY) === 0;
 }
 
-/** Static Flame that becomes Charcoal after WOOD_FLAME_DURATION_SEC. */
+/** Static Flame that becomes Charcoal after `config.woodFlameDurationSec`. */
 export function lightCharcoalFlame(
   api: WorkerSandkitApi,
   types: BurnTypes,
   cellX: number,
   cellY: number,
 ): void {
-  const duration = WOOD_FLAME_DURATION_SEC[0];
+  const duration = config.woodFlameDurationSec;
   api.elements.replaceAtCell(cellX, cellY, types.flame, {
-    density: WOOD_DENSITY,
+    density: config.woodDensity,
     duration,
     data: {
       output: { elementType: types.charcoal, chance: 1 },
@@ -79,7 +74,7 @@ export function primeNeighborIgnition(
   );
   if (!next) return;
   api.elements.setDataFieldAtCell(next.x, next.y, IGNITE_PRIME_FIELD, 1);
-  api.elements.setDurationAtCell(next.x, next.y, WOOD_SPREAD_DELAY_TICKS, { updateMax: true });
+  api.elements.setDurationAtCell(next.x, next.y, config.woodSpreadDelayTicks, { updateMax: true });
   api.grid.reportActivityAtCell(next.x, next.y);
 }
 

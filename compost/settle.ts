@@ -1,4 +1,4 @@
-import { DIRT_SHADOW_REDRAW_RANGE } from "./constants.ts";
+import { config } from "../config.ts";
 
 const dirtType = () => sandkit.enums.CellType.Dirt;
 
@@ -38,5 +38,5 @@ export function applyWetCompostSettle(
 }
 
 export function refreshDirtShadows(api: SandkitApi, cellX: number, cellY: number): void {
-  api.grid.redrawAroundCell(cellX, cellY, DIRT_SHADOW_REDRAW_RANGE);
+  api.grid.redrawAroundCell(cellX, cellY, config.dirtShadowRedrawRange);
 }

@@ -11,13 +11,13 @@ function oakWoodGrain(): [number, number, number][][] {
     GRAIN_LITE.map((base, col) => {
       const jitter = ((col * 7 + row * 3) % 7) - 3;
       return [GRAIN_HUE[col], GRAIN_SAT[col], Math.max(20, Math.min(56, base + jitter))];
-    })
+    }),
   );
 }
 
 export function register(): void {
   api.i18n.register("en", {
-    [NAME_KEY.oakWood]: "Oak Wood"
+    [NAME_KEY.oakWood]: "Oak Wood",
   });
 
   const colorsHSL = oakWoodGrain();
@@ -30,9 +30,9 @@ export function register(): void {
     metaColor: 0x6b4a28,
     colorPattern: {
       size: [colorsHSL[0].length, colorsHSL.length],
-      colorsHSL
+      colorsHSL,
     },
-    output: { elementType: woodType, chance: 1 }
+    output: { elementType: woodType, chance: 1 },
   });
 
   api.discoveries.addTerrainByType(cellType);

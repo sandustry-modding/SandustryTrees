@@ -2,15 +2,8 @@ import { queuePineWoodShadows } from "../pineWood/shadows.ts";
 import { spawnCanopyCones } from "../pineCone/spawn.ts";
 import { fillCanopy } from "../pineNeedle/fill.ts";
 import { runWithoutCollapse } from "../pineWood/collapse.ts";
-import {
-  GROW_DURATION_TICKS,
-  TRUNK_BASE_FLARE_ROWS,
-  TRUNK_GROW_ROWS_PER_TICK,
-  TRUNK_HEIGHT,
-  trunkBaseExtraHalf,
-  trunkHalfWidthAt,
-  trunkHalfWidthFromRoot,
-} from "./constants.ts";
+import { config, trunkGrowRowsPerTick } from "../../../config.ts";
+import { trunkBaseExtraHalf, trunkHalfWidthAt, trunkHalfWidthFromRoot } from "./constants.ts";
 
 export type GrowTypes = {
   pineShoot: number;
@@ -37,7 +30,7 @@ function placeWood(
   }
 }
 
-function widenBase(
+function widenTrunk(
   api: WorkerSandkitApi,
   types: GrowTypes,
   rootX: number,
@@ -45,11 +38,9 @@ function widenBase(
   height: number,
 ): void {
   const extraHalf = trunkBaseExtraHalf(height);
-  if (extraHalf <= 0) return;
-  const rows = Math.min(TRUNK_BASE_FLARE_ROWS, height);
-  for (let dy = 0; dy < rows; dy += 1) {
+  for (let dy = 0; dy < height; dy += 1) {
     const cellY = rootY - dy;
-    const half = trunkHalfWidthFromRoot(dy, extraHalf);
+    const half = trunkHalfWidthFromRoot(dy, extraHalf, height);
     placeWood(api, types, rootX, cellY, half);
   }
 }
@@ -75,7 +66,7 @@ function growOneRow(
   const nextHeight = height + 1;
   const aboveY = cellY - 1;
   placeWood(api, types, cellX, cellY, trunkHalfWidthAt(nextHeight));
-  if (nextHeight >= TRUNK_HEIGHT) {
+  if (nextHeight >= config.pineTrunkHeight) {
     return { nextHeight, shootY: cellY, blocked: false, mature: true };
   }
   clearNeedlesAt(api, types, cellX, aboveY);
@@ -94,9 +85,9 @@ function finishShape(
   previousHeight: number,
 ): void {
   const rootY = woodY + height - 1;
-  widenBase(api, types, rootX, rootY, height);
+  widenTrunk(api, types, rootX, rootY, height);
   fillCanopy(api, types, rootX, woodY, height, previousHeight);
-  if (height >= TRUNK_HEIGHT) {
+  if (height >= config.pineTrunkHeight) {
     spawnCanopyCones(api, types, rootX, woodY, height);
   }
 }
@@ -127,7 +118,7 @@ function growPineShootInner(
   let placed = false;
   let mature = false;
   let blocked = false;
-  for (let step = 0; step < TRUNK_GROW_ROWS_PER_TICK; step += 1) {
+  for (let step = 0; step < trunkGrowRowsPerTick(); step += 1) {
     const result = growOneRow(api, types, shootX, shootY, height);
     height = result.nextHeight;
     woodY = shootY;
@@ -142,7 +133,7 @@ function growPineShootInner(
   if (mature || blocked) return;
 
   api.elements.createAtCell(shootX, shootY, types.pineShoot, {
-    durationTicks: GROW_DURATION_TICKS,
+    durationTicks: config.pineGrowDurationTicks,
     dataFields: { field1: height },
   });
   api.grid.reportActivityAtCell(shootX, shootY);

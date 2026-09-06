@@ -2,15 +2,8 @@ import { queueOakWoodShadows } from "../oakWood/shadows.ts";
 import { spawnCanopyAcorns } from "../acorn/spawn.ts";
 import { desiredBranchCells, fillCanopy } from "../oakLeaf/fill.ts";
 import { runWithoutCollapse } from "../oakWood/collapse.ts";
-import {
-  GROW_DURATION_TICKS,
-  TRUNK_BASE_FLARE_ROWS,
-  TRUNK_GROW_ROWS_PER_TICK,
-  TRUNK_HEIGHT,
-  trunkBaseExtraHalf,
-  trunkHalfWidthAt,
-  trunkHalfWidthFromRoot,
-} from "./constants.ts";
+import { config, trunkGrowRowsPerTick } from "../../../config.ts";
+import { trunkBaseExtraHalf, trunkHalfWidthAt, trunkHalfWidthFromRoot } from "./constants.ts";
 
 export type GrowTypes = {
   oakShoot: number;
@@ -37,7 +30,7 @@ function placeWood(
   }
 }
 
-function widenBase(
+function widenTrunk(
   api: WorkerSandkitApi,
   types: GrowTypes,
   rootX: number,
@@ -45,11 +38,10 @@ function widenBase(
   height: number,
 ): void {
   const extraHalf = trunkBaseExtraHalf(height);
-  if (extraHalf <= 0) return;
-  const rows = Math.min(TRUNK_BASE_FLARE_ROWS, height);
-  for (let dy = 0; dy < rows; dy += 1) {
+  const bole = Math.min(height, config.oakTrunkForkHeight);
+  for (let dy = 0; dy < bole; dy += 1) {
     const cellY = rootY - dy;
-    const half = trunkHalfWidthFromRoot(dy, extraHalf);
+    const half = trunkHalfWidthFromRoot(dy, extraHalf, height);
     placeWood(api, types, rootX, cellY, half);
   }
 }
@@ -101,8 +93,10 @@ function growOneRow(
 ): { nextHeight: number; shootY: number; blocked: boolean; mature: boolean } {
   const nextHeight = height + 1;
   const aboveY = cellY - 1;
-  placeWood(api, types, cellX, cellY, trunkHalfWidthAt(nextHeight));
-  if (nextHeight >= TRUNK_HEIGHT) {
+  if (nextHeight <= config.oakTrunkForkHeight) {
+    placeWood(api, types, cellX, cellY, trunkHalfWidthAt(nextHeight));
+  }
+  if (nextHeight >= config.oakTrunkHeight) {
     return { nextHeight, shootY: cellY, blocked: false, mature: true };
   }
   clearShootPath(api, types, cellX, aboveY);
@@ -132,7 +126,7 @@ function finishShape(
   rootY: number,
   height: number,
 ): void {
-  widenBase(api, types, rootX, rootY, height);
+  widenTrunk(api, types, rootX, rootY, height);
   placeCrownBranches(api, types, rootX, rootY, height);
 }
 
@@ -162,7 +156,7 @@ function growOakShootInner(
   let placed = false;
   let mature = false;
   let blocked = false;
-  for (let step = 0; step < TRUNK_GROW_ROWS_PER_TICK; step += 1) {
+  for (let step = 0; step < trunkGrowRowsPerTick(); step += 1) {
     const result = growOneRow(api, types, shootX, shootY, height);
     height = result.nextHeight;
     woodY = shootY;
@@ -183,7 +177,7 @@ function growOakShootInner(
   if (blocked) return;
 
   api.elements.createAtCell(shootX, shootY, types.oakShoot, {
-    durationTicks: GROW_DURATION_TICKS,
+    durationTicks: config.oakGrowDurationTicks,
     dataFields: { field1: height },
   });
   api.grid.reportActivityAtCell(shootX, shootY);

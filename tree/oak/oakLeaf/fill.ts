@@ -1,11 +1,5 @@
+import { config } from "../../../config.ts";
 import type { Cell } from "../../../shared/cell.ts";
-import { TRUNK_HALF_WIDTH, TRUNK_HEIGHT } from "../oakShoot/constants.ts";
-import {
-  CANOPY_LEAD,
-  CANOPY_MIN_TRUNK_HEIGHT,
-  LEAF_TIP_RADIUS,
-  LIMB_GROW_ROWS,
-} from "./constants.ts";
 
 export type CanopyTypes = {
   oakLeaf: number;
@@ -14,6 +8,7 @@ export type CanopyTypes = {
 
 type LimbSpec = {
   originHeight: number;
+  dirX: -1 | 1;
   steps: readonly (readonly [number, number])[];
 };
 
@@ -34,35 +29,16 @@ function stair(dirX: -1 | 1, out: number, up: number): readonly (readonly [numbe
   return steps;
 }
 
-/** 4-connected forks. Diagonal steps detach and collapse into falling wood. */
-const LIMBS: readonly LimbSpec[] = [
-  { originHeight: 18, steps: stair(-1, 4, 5) },
-  { originHeight: 18, steps: stair(1, 4, 5) },
-  { originHeight: 26, steps: stair(-1, 6, 6) },
-  { originHeight: 26, steps: stair(1, 6, 6) },
-  { originHeight: 34, steps: stair(-1, 8, 6) },
-  { originHeight: 34, steps: stair(1, 8, 6) },
-  {
-    originHeight: 42,
-    steps: [
-      [0, -1],
-      [0, -1],
-      [-1, 0],
-      [0, -1],
-      [0, -1],
-    ],
-  },
-  {
-    originHeight: 42,
-    steps: [
-      [0, -1],
-      [0, -1],
-      [1, 0],
-      [0, -1],
-      [0, -1],
-    ],
-  },
-];
+/** 4-connected crown split. Diagonal steps detach and collapse into falling wood. */
+function limbs(): readonly LimbSpec[] {
+  const originHeight = config.oakTrunkForkHeight;
+  const out = config.oakLimbOut;
+  const up = config.oakLimbUp;
+  return [
+    { originHeight, dirX: -1, steps: stair(-1, out, up) },
+    { originHeight, dirX: 1, steps: stair(1, out, up) },
+  ];
+}
 
 type LeafGrid = {
   grid: {
@@ -88,7 +64,8 @@ function cellKey(cell: Cell): string {
 function canopyGrowT(height: number): number {
   return Math.min(
     1,
-    (height - CANOPY_MIN_TRUNK_HEIGHT) / Math.max(1, TRUNK_HEIGHT - CANOPY_MIN_TRUNK_HEIGHT),
+    (height - config.oakCanopyMinTrunkHeight) /
+      Math.max(1, config.oakTrunkHeight - config.oakCanopyMinTrunkHeight),
   );
 }
 
@@ -96,13 +73,28 @@ function trunkTopY(rootY: number, height: number): number {
   return rootY - height + 1;
 }
 
+function thickenLimb(cells: readonly Cell[], dirX: -1 | 1): Cell[] {
+  const seen = new Set<string>();
+  const thick: Cell[] = [];
+  for (const cell of cells) {
+    for (const dx of [0, dirX]) {
+      const next = { x: cell.x + dx, y: cell.y };
+      const key = cellKey(next);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      thick.push(next);
+    }
+  }
+  return thick;
+}
+
 function limbPolylines(rootX: number, rootY: number, height: number): Cell[][] {
   const topY = trunkTopY(rootY, height);
-  const growing = height < TRUNK_HEIGHT;
+  const growing = height < config.oakTrunkHeight;
   const lines: Cell[][] = [];
-  for (const limb of LIMBS) {
+  for (const limb of limbs()) {
     if (height <= limb.originHeight) continue;
-    const t = Math.min(1, (height - limb.originHeight) / LIMB_GROW_ROWS);
+    const t = Math.min(1, (height - limb.originHeight) / config.oakLimbGrowRows);
     const n = Math.max(1, Math.ceil(limb.steps.length * t));
     const cells: Cell[] = [];
     let x = rootX;
@@ -116,14 +108,14 @@ function limbPolylines(rootX: number, rootY: number, height: number): Cell[][] {
       if (growing && y < topY) break;
       cells.push({ x, y });
     }
-    if (cells.length > 0) lines.push(cells);
+    if (cells.length > 0) lines.push(thickenLimb(cells, limb.dirX));
   }
   return lines;
 }
 
 /** Oak wood cells that fork out of the upper trunk. */
 export function desiredBranchCells(rootX: number, rootY: number, height: number): Cell[] {
-  if (height < CANOPY_MIN_TRUNK_HEIGHT) return [];
+  if (height < config.oakCanopyMinTrunkHeight) return [];
   const seen = new Set<string>();
   const cells: Cell[] = [];
   for (const line of limbPolylines(rootX, rootY, height)) {
@@ -152,33 +144,44 @@ function stampDisk(cells: Cell[], seen: Set<string>, cx: number, cy: number, rad
   }
 }
 
-/** Leaf tufts on limb tips. Inner wood stays bare so branches read. */
+/** Overlapping leaf clumps. Lower trunk stays bare so the bole reads. */
 export function canopyDesiredCells(rootX: number, rootY: number, height: number): Cell[] {
-  if (height < CANOPY_MIN_TRUNK_HEIGHT) return [];
-  const growing = height < TRUNK_HEIGHT;
+  if (height < config.oakCanopyMinTrunkHeight) return [];
+  const growing = height < config.oakTrunkHeight;
   const topY = trunkTopY(rootY, height);
   const peakY = growing ? topY - 1 : topY;
+  const splitY = rootY - Math.min(height, config.oakTrunkForkHeight);
   const t = canopyGrowT(height);
-  const tipR = 2 + Math.round(t * (LEAF_TIP_RADIUS - 2));
+  const tipR = 3 + Math.round(t * (config.oakLeafTipRadius - 3));
+  const crownR = 4 + Math.round(t * (config.oakLeafCrownRadius - 4));
   const branches = desiredBranchCells(rootX, rootY, height);
   const branchKeys = new Set(branches.map(cellKey));
   const seen = new Set<string>();
   const cells: Cell[] = [];
-  stampDisk(cells, seen, rootX, peakY, tipR);
+  stampDisk(cells, seen, rootX, peakY, crownR);
+  stampDisk(cells, seen, rootX, splitY, crownR);
+  if (height > config.oakTrunkForkHeight) {
+    const midY = Math.round((splitY + peakY) / 2);
+    stampDisk(cells, seen, rootX, midY, crownR);
+  }
   for (const line of limbPolylines(rootX, rootY, height)) {
     for (let i = 0; i < line.length; i += 1) {
       const cell = line[i];
       if (!cell) continue;
       const distFromTip = line.length - 1 - i;
-      const outer = distFromTip <= Math.max(2, Math.ceil(line.length * 0.4));
-      const radius = distFromTip === 0 ? tipR : outer ? Math.max(2, tipR - 2) : 0;
+      const radius = distFromTip === 0 ? tipR : Math.max(3, tipR - Math.min(3, distFromTip));
       stampDisk(cells, seen, cell.x, cell.y, radius);
     }
   }
   return cells.filter((cell) => {
     if (growing && cell.x === rootX && cell.y === peakY) return false;
     if (branchKeys.has(cellKey(cell))) return false;
-    if (Math.abs(cell.x - rootX) <= TRUNK_HALF_WIDTH && cell.y > topY + CANOPY_LEAD) return false;
+    if (
+      Math.abs(cell.x - rootX) <= config.oakTrunkHalfWidth &&
+      cell.y > splitY + config.oakCanopyLead
+    ) {
+      return false;
+    }
     return true;
   });
 }
@@ -191,7 +194,7 @@ export function fillCanopy(
   height: number,
   previousHeight = 0,
 ): void {
-  if (height < CANOPY_MIN_TRUNK_HEIGHT) return;
+  if (height < config.oakCanopyMinTrunkHeight) return;
   const desired = canopyDesiredCells(rootX, rootY, height);
   const previous =
     previousHeight > 0 && previousHeight < height

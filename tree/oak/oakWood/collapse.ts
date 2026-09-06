@@ -1,4 +1,4 @@
-import { WOOD_COLLAPSE_PER_TICK } from "./constants.ts";
+import { config } from "../../../config.ts";
 
 export type HarvestTypes = {
   oakWood: number;
@@ -218,15 +218,13 @@ function collapseComponent(
   writer: DropWriter,
   origin: Cell,
 ): void {
-  const wood = cells.filter(
-    (cell) => api.terrains.getTypeAtCell(cell.x, cell.y) === types.oakWood,
-  );
+  const wood = cells.filter((cell) => api.terrains.getTypeAtCell(cell.x, cell.y) === types.oakWood);
   if (wood.length === 0) {
     for (const cell of cells) dropCell(api, types, cell, writer);
     return;
   }
   wood.sort((a, b) => b.y - a.y || a.x - b.x);
-  const batchLimit = writer === api ? WOOD_COLLAPSE_PER_TICK : wood.length;
+  const batchLimit = writer === api ? config.oakWoodCollapsePerTick : wood.length;
   const limit = Math.min(batchLimit, wood.length);
   for (let i = 0; i < limit; i += 1) dropCell(api, types, wood[i], writer);
   dropOrphans(api, types, cells, writer);

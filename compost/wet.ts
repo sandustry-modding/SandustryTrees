@@ -1,13 +1,7 @@
+import { config } from "../config.ts";
 import type { Cell } from "../shared/cell.ts";
 import { DIRS } from "../shared/dirs.ts";
-import {
-  DIRT_IDLE_BEFORE_RANDOM_TICKS,
-  DIRT_SETTLE_MAX_TICKS,
-  DIRT_SETTLE_MIN_TICKS,
-  DIRT_WAIT_FIELD,
-  IDLE_FIELD,
-  SETTLE_DURATION_TICKS,
-} from "./constants.ts";
+import { DIRT_WAIT_FIELD, IDLE_FIELD } from "./constants.ts";
 
 export type WetTypes = {
   compost: number;
@@ -90,7 +84,7 @@ export function tryWetCompost(
 ): boolean {
   if (!api.elements.isTypeAtCell(cellX, cellY, types.compost)) return false;
   const ticks = api.elements.getDataFieldAtCell(cellX, cellY, IDLE_FIELD) ?? 0;
-  if (!shouldSettleTicks(ticks, SETTLE_DURATION_TICKS)) return false;
+  if (!shouldSettleTicks(ticks, config.compostSettleDurationTicks)) return false;
   if (!cellSettled(api, cellX, cellY)) return false;
   const water = findAdjacentWater(
     (x, y) => api.elements.isTypeAtCell(x, y, types.water),
@@ -132,20 +126,21 @@ export function tickIdleSettle(
   const settled = cellSettled(api, cellX, cellY);
   const current = api.elements.getDataFieldAtCell(cellX, cellY, IDLE_FIELD) ?? 0;
   const ticks = nextIdleTicks(current, settled);
-  let needed = SETTLE_DURATION_TICKS;
+  let needed = config.compostSettleDurationTicks;
   if (options?.randomDirtWait) {
     const currentWait = api.elements.getDataFieldAtCell(cellX, cellY, DIRT_WAIT_FIELD) ?? 0;
     const wait = nextDirtWait(
       currentWait,
       settled,
       ticks,
-      DIRT_IDLE_BEFORE_RANDOM_TICKS,
-      api.random.int(DIRT_SETTLE_MIN_TICKS, DIRT_SETTLE_MAX_TICKS),
+      config.dirtIdleBeforeRandomTicks,
+      api.random.int(config.dirtSettleMinTicks, config.dirtSettleMaxTicks),
     );
     if (wait !== currentWait) {
       api.elements.setDataFieldAtCell(cellX, cellY, DIRT_WAIT_FIELD, wait);
     }
-    needed = wait > 0 ? DIRT_IDLE_BEFORE_RANDOM_TICKS + wait : DIRT_IDLE_BEFORE_RANDOM_TICKS + 1;
+    needed =
+      wait > 0 ? config.dirtIdleBeforeRandomTicks + wait : config.dirtIdleBeforeRandomTicks + 1;
   }
   if (ticks !== current) {
     api.elements.setDataFieldAtCell(cellX, cellY, IDLE_FIELD, ticks);

@@ -4,7 +4,7 @@ const api = sandkit.api;
 
 export function register(): void {
   api.i18n.register("en", {
-    [NAME_KEY.acorn]: "Acorn"
+    [NAME_KEY.acorn]: "Acorn",
   });
   const { elementType } = api.elements.register({
     id: ELEMENT.acorn,
@@ -16,11 +16,11 @@ export function register(): void {
       variants: [
         [61, 36, 20],
         [48, 28, 14],
-        [78, 48, 28]
-      ]
+        [78, 48, 28],
+      ],
     },
     isGrabbable: true,
-    isTransportable: true
+    isTransportable: true,
   });
   api.discoveries.addElementByType(elementType);
 }

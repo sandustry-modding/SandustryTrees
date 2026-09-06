@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { growOakShoot, type GrowTypes } from "./grow.ts";
-import { TRUNK_HEIGHT } from "./constants.ts";
+import { treesConfigDefaults as d } from "../../../config.ts";
 
 const types: GrowTypes = {
   oakShoot: 1,
@@ -71,6 +71,31 @@ function makeGrid(shoot: { x: number; y: number }, field1: number) {
   return { cells, api };
 }
 
+function maxWoodDx(cells: Map<string, CellState>, rootX: number): number {
+  let maxDx = 0;
+  for (const [cellKey, cell] of cells) {
+    if (cell.terrain !== types.oakWood) continue;
+    const x = Number(cellKey.split(",")[0]);
+    maxDx = Math.max(maxDx, Math.abs(x - rootX));
+  }
+  return maxDx;
+}
+
+function growUntilDone(
+  cells: Map<string, CellState>,
+  api: ReturnType<typeof makeGrid>["api"],
+  start: { x: number; y: number },
+): void {
+  for (let i = 0; i < d.oakTrunkHeight + 8; i += 1) {
+    const shootCells = [...cells.entries()].filter(([, cell]) => cell.element === types.oakShoot);
+    if (shootCells.length === 0) break;
+    const [xy] = shootCells[0] ?? [];
+    if (!xy) break;
+    const [x, y] = xy.split(",").map(Number);
+    growOakShoot(api as unknown as WorkerSandkitApi, types, x ?? start.x, y ?? start.y);
+  }
+}
+
 test("growOakShoot continues when an oak leaf sits above the shoot", () => {
   const shoot = { x: 10, y: 80 };
   const { cells, api } = makeGrid(shoot, 30);
@@ -100,10 +125,17 @@ test("growOakShoot places oak wood past the trunk", () => {
   assert.ok(branchWood >= 8, `expected forked oak wood, branchWood=${branchWood}`);
 });
 
-test("growOakShoot does not fill a wood wedge", () => {
+test("growOakShoot starts one cell wide", () => {
   const shoot = { x: 10, y: 120 };
   const { cells, api } = makeGrid(shoot, 0);
-  for (let i = 0; i < TRUNK_HEIGHT + 4; i += 1) {
+  growOakShoot(api as unknown as WorkerSandkitApi, types, shoot.x, shoot.y);
+  assert.equal(maxWoodDx(cells, shoot.x), 0);
+});
+
+test("growOakShoot thickens the bole as it grows", () => {
+  const shoot = { x: 10, y: 120 };
+  const { cells, api } = makeGrid(shoot, 0);
+  for (let i = 0; i < 8; i += 1) {
     const shootCells = [...cells.entries()].filter(([, cell]) => cell.element === types.oakShoot);
     if (shootCells.length === 0) break;
     const [xy] = shootCells[0] ?? [];
@@ -111,7 +143,26 @@ test("growOakShoot does not fill a wood wedge", () => {
     const [x, y] = xy.split(",").map(Number);
     growOakShoot(api as unknown as WorkerSandkitApi, types, x ?? shoot.x, y ?? shoot.y);
   }
+  const youngDx = maxWoodDx(cells, shoot.x);
+  growUntilDone(cells, api, shoot);
+  const matureDx = maxWoodDx(cells, shoot.x);
+  assert.ok(youngDx <= 1, `young oak should stay thin, dx=${youngDx}`);
+  assert.ok(matureDx >= d.oakTrunkHalfWidth, `mature oak should reach bole width, dx=${matureDx}`);
+});
+
+test("growOakShoot does not fill a wood wedge", () => {
+  const shoot = { x: 10, y: 120 };
+  const { cells, api } = makeGrid(shoot, 0);
+  growUntilDone(cells, api, shoot);
   const wood = [...cells.values()].filter((cell) => cell.terrain === types.oakWood).length;
   assert.ok(wood > 40, `expected a trunk, wood=${wood}`);
   assert.ok(wood < 450, `expected no funnel wedge, wood=${wood}`);
+  const rootY = shoot.y;
+  for (let height = d.oakTrunkForkHeight + 2; height <= d.oakTrunkHeight; height += 1) {
+    assert.notEqual(
+      cells.get(`${shoot.x},${rootY - height + 1}`)?.terrain,
+      types.oakWood,
+      `straight trunk continued above fork at height ${height}`,
+    );
+  }
 });

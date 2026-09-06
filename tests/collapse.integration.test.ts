@@ -22,9 +22,7 @@ type TrunkCounts = {
   wood: number;
 };
 
-function setupTrunk(
-  pad: TrunkPad,
-): { ok: true; pineWood: number } | { ok: false; reason: string } {
+function setupTrunk(pad: TrunkPad): { ok: true; pineWood: number } | { ok: false; reason: string } {
   const api = sandkit.api;
   let pineWood: number;
   try {

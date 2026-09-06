@@ -1,4 +1,5 @@
 import { isEnabled } from "@modkit/utils";
+import { treesLiveConfig } from "./config.ts";
 import { register as registerPineCone } from "./tree/pine/pineCone/register.ts";
 import { registerMain as registerPineConeMain } from "./tree/pine/pineCone/main.ts";
 import { register as registerPineShoot } from "./tree/pine/pineShoot/register.ts";
@@ -22,6 +23,7 @@ import { registerMain as registerOakWoodMain } from "./tree/oak/oakWood/main.ts"
 import { registerSieve } from "./sieve/register.ts";
 
 const api = sandkit.api;
+treesLiveConfig.get();
 
 if (isEnabled(api)) {
   registerPineCone();

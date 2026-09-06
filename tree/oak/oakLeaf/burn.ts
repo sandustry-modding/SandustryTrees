@@ -1,6 +1,6 @@
+import { config } from "../../../config.ts";
 import type { Cell } from "../../../shared/cell.ts";
 import { ORTHO8_DIRS } from "../../../shared/dirs.ts";
-import { NEEDLE_BURN_RESIDUE_CHANCE, NEEDLE_IGNITE_CHANCE } from "./constants.ts";
 
 export type LeafBurnTypes = {
   oakLeaf: number;
@@ -54,7 +54,7 @@ function lightLeaf(
   if (api.fire.burnElementAtCell(cellX, cellY)) return;
   api.elements.replaceAtCell(cellX, cellY, types.flame, {
     data: {
-      output: { elementType: types.burntResidue, chance: NEEDLE_BURN_RESIDUE_CHANCE },
+      output: { elementType: types.burntResidue, chance: config.oakLeafBurnResidueChance },
     },
   });
   api.grid.reportActivityAtCell(cellX, cellY);
@@ -67,7 +67,7 @@ export function igniteLeavesTouchingFire(
   cellX: number,
   cellY: number,
 ): void {
-  if (!shouldIgnite(api.random.float(0, 1), NEEDLE_IGNITE_CHANCE)) return;
+  if (!shouldIgnite(api.random.float(0, 1), config.oakLeafIgniteChance)) return;
   const next = pickLeafNeighbor(
     (x, y) => api.elements.isTypeAtCell(x, y, types.oakLeaf),
     cellX,

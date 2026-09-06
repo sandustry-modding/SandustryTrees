@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { CANOPY_MIN_TRUNK_HEIGHT } from "./constants.ts";
+import { treesConfigDefaults as d } from "../../../config.ts";
 import { canopyDesiredCells, fillCanopy, isVacantCell } from "./fill.ts";
+
+const CANOPY_MIN_TRUNK_HEIGHT = d.pineCanopyMinTrunkHeight;
 
 function cellSet(cells: { x: number; y: number }[]): Set<string> {
   return new Set(cells.map((cell) => `${cell.x},${cell.y}`));
