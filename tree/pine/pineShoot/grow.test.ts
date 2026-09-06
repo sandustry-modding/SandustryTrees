@@ -66,6 +66,7 @@ test("growPineShoot continues when a needle sits above the shoot", () => {
       isTerrainAtCell: (x: number, y: number) => at(x, y)?.terrain != null,
       reportActivityAtCell: () => {},
     },
+    main: { emitEvent: () => {} },
   };
 
   growPineShoot(api as unknown as WorkerSandkitApi, types, shoot.x, shoot.y);

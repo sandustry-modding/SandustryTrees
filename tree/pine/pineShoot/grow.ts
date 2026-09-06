@@ -1,3 +1,4 @@
+import { queuePineWoodShadows } from "../pineWood/shadows.ts";
 import { spawnCanopyCones } from "../pineCone/spawn.ts";
 import { fillCanopy } from "../pineNeedle/fill.ts";
 import { runWithoutCollapse } from "../pineWood/collapse.ts";
@@ -31,7 +32,8 @@ function placeWood(
       api.elements.removeAtCell(woodX, cellY);
     }
     if (!api.grid.isCellEmptyAtCell(woodX, cellY)) continue;
-    api.terrains.createAtCell(woodX, cellY, types.pineWood);
+    api.terrains.createAtCell(woodX, cellY, types.pineWood, { skipShadow: false });
+    queuePineWoodShadows(api, woodX, cellY);
   }
 }
 

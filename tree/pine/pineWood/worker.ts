@@ -1,5 +1,6 @@
 import { collapseIfDetached, type HarvestTypes } from "./collapse.ts";
 import { cellFromArgs } from "../../../shared/cell.ts";
+import { queuePineWoodShadows } from "./shadows.ts";
 
 export function registerWorker(api: WorkerSandkitApi, types: HarvestTypes): void {
   try {
@@ -11,6 +12,7 @@ export function registerWorker(api: WorkerSandkitApi, types: HarvestTypes): void
         // Creates (growth) still have pine wood here. Harvest only after the cell is gone.
         if (api.terrains.getTypeAtCell(cell.x, cell.y) === types.pineWood) return;
         collapseIfDetached(api, types, cell.x, cell.y);
+        queuePineWoodShadows(api, cell.x, cell.y);
       },
       { guard: { terrainType: types.pineWood } },
     );

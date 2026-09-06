@@ -2,25 +2,33 @@ import { modinfo } from "../modinfo.ts";
 
 const root = modinfo.id;
 
+function ns(test: string) {
+  return `${root}:${test}`;
+}
+
+function key(test: string) {
+  return `${root}.${test}`;
+}
+
 export const ELEMENT = {
-  pineCone: `${root}:pineCone`,
-  pineShoot: `${root}:pineShoot`,
-  pineNeedle: `${root}:pineNeedle`,
-  wood: `${root}:wood`,
-  charcoal: `${root}:charcoal`,
-  compost: `${root}:compost`,
-  wetCompost: `${root}:wetCompost`,
+  pineCone: ns("pineCone"),
+  pineShoot: ns("pineShoot"),
+  pineNeedle: ns("pineNeedle"),
+  wood: ns("wood"),
+  charcoal: ns("charcoal"),
+  compost: ns("compost"),
+  wetCompost: ns("wetCompost"),
 } as const;
 
 export const NAME_KEY = {
-  pineCone: `${root}.pineCone.name`,
-  pineShoot: `${root}.pineShoot.name`,
-  pineNeedle: `${root}.pineNeedle.name`,
-  pineWood: `${root}.pineWood.name`,
-  wood: `${root}.wood.name`,
-  charcoal: `${root}.charcoal.name`,
-  compost: `${root}.compost.name`,
-  wetCompost: `${root}.wetCompost.name`,
+  pineCone: key("pineCone.name"),
+  pineShoot: key("pineShoot.name"),
+  pineNeedle: key("pineNeedle.name"),
+  pineWood: key("pineWood.name"),
+  wood: key("wood.name"),
+  charcoal: key("charcoal.name"),
+  compost: key("compost.name"),
+  wetCompost: key("wetCompost.name"),
 } as const;
 
 export const VANILLA_ELEMENT = {
@@ -29,13 +37,13 @@ export const VANILLA_ELEMENT = {
 } as const;
 
 export const TERRAIN = {
-  pineWood: `${root}:pineWood`,
+  pineWood: ns("pineWood"),
 } as const;
 
 export const STRUCTURE = {
-  sieve: `${root}:sieve`,
+  sieve: ns("sieve"),
 } as const;
 
 export const SPRITE = {
-  sieve: `${root}:sieve-sprite`,
+  sieve: ns("sieve-sprite"),
 } as const;
