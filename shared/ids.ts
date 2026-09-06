@@ -9,6 +9,7 @@ export const ELEMENT = {
   wood: `${root}:wood`,
   charcoal: `${root}:charcoal`,
   compost: `${root}:compost`,
+  wetCompost: `${root}:wetCompost`,
 } as const;
 
 export const NAME_KEY = {
@@ -19,10 +20,12 @@ export const NAME_KEY = {
   wood: `${root}.wood.name`,
   charcoal: `${root}.charcoal.name`,
   compost: `${root}.compost.name`,
+  wetCompost: `${root}.wetCompost.name`,
 } as const;
 
 export const VANILLA_ELEMENT = {
   burntResidue: "burntResidue",
+  water: "water",
 } as const;
 
 export const TERRAIN = {

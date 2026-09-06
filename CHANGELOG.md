@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added: **Water** turns settled **Compost** into denser **Wet Compost**. A cell must be unable to fall or slide, then wait about 60 ticks. Wet Compost must stay at rest about 180 ticks, then each cell waits a random extra time before it becomes **Dirt**, so a pile turns gradually.
+- Fixed: dirt from Wet Compost is placed in the same sim tick as the powder is removed, so a pile does not leave empty holes. Nearby shadows still redraw on the main thread.
 - Fixed: chopping the base of a pine trunk collapses the tree again. Main-thread harvest reads still saw the removed cell as trunk until mutate applied, so the tree looked attached to dirt.
 - Fixed: detached trunk collapse finishes in the same harvest instead of stopping after the first batch. Main-thread harvest collapses the whole detached trunk in one mutate pass.
 - Changed: living pine tree code lives under `tree/pine/`. Wood, charcoal, compost, and the sieve stay at the mod root.

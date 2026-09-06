@@ -3,6 +3,7 @@ import { registerWorker as registerPineShootWorker } from "./tree/pine/pineShoot
 import { registerWorker as registerPineNeedleWorker } from "./tree/pine/pineNeedle/worker.ts";
 import { registerWorker as registerPineWoodWorker } from "./tree/pine/pineWood/worker.ts";
 import { registerWorker as registerWoodWorker } from "./wood/worker.ts";
+import { registerWorker as registerCompostWorker } from "./compost/worker.ts";
 import type { HarvestTypes } from "./tree/pine/pineWood/collapse.ts";
 import type { BurnTypes } from "./wood/burn.ts";
 import { ELEMENT, TERRAIN, VANILLA_ELEMENT } from "./shared/ids.ts";
@@ -47,6 +48,11 @@ function boot(): void {
   });
   registerPineWoodWorker(workerApi, types);
   registerWoodWorker(workerApi, resolveBurnTypes(workerApi));
+  registerCompostWorker(workerApi, {
+    compost: types.compost,
+    wetCompost: workerApi.elements.getTypeById(ELEMENT.wetCompost),
+    water: sandkit.enums.ElementType.Water,
+  });
   booted = true;
 }
 

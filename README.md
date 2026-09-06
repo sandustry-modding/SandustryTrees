@@ -10,7 +10,7 @@ Pine trees, harvested wood, and charcoal for Sandustry.
 4. Needles start after 24 trunk cells. The cone stays on the crown and gets wider as the tree grows. Needles fill empty cells only. They do not replace terrain or other elements. Needles that you remove do not grow back. Grab **Pine Needle** cells with the grabber to turn them into **Compost**. Fire burns needles. Nearby fire or flame lights one neighboring needle at a time. The fire crawls through the canopy, like oil. Most cells leave nothing. A few cells leave **Burnt Residue**. The mature tip sits 12 cells above the wood. The shoot stays on the trunk until the tree is full height. You can grab the **Pine Shoot** with the grabber, the same way as a Pine Seed. If you take the shoot, the tree stops growing. Fire burns the shoot to **Burnt Residue**. When the trunk is full height, one needle becomes a **Pine Cone**. A second needle becomes a Pine Cone 1% of the time.
 5. Mine any **trunk** cell with a shovel or drill. The rest of the trunk falls as **Raw Wood**. Needles fall as **Compost**. One **Pine Seed** drops from the canopy tip (rarely two).
 6. Burn **Raw Wood** in open air to make vanilla **burnt residue**. Seal a pile (no empty cells in the 8 neighbors) to make **Charcoal**. Sealed fire stays lit for about 2 seconds per cell and crawls through the pile.
-7. Compost that rests in place becomes **Dirt**.
+7. Dry **Compost** stays a powder until it cannot fall or slide. After about **60 ticks** at rest, **Water** that touches it is consumed and the cell becomes **Wet Compost** (denser). A moving pile does not wet. Wet Compost must stay at rest about **180 ticks**, then each cell waits a **random** extra time before it becomes **Dirt**. A whole pile turns gradually. If a cell moves, its wait starts again.
 
 Old trees from 0.1.0 are static elements. Plant a new seed after you reload.
 
@@ -55,7 +55,7 @@ Edit the folder for the feature you want to change. Numbers live in that folder'
 | `tree/pine/pineWood/`   | Living trunk, harvest, collapse     |
 | `wood/`                 | Harvested wood kiln                 |
 | `charcoal/`             | Charcoal element                    |
-| `compost/`               | Compost element                     |
+| `compost/`               | Compost, wet compost, dirt settle   |
 | `sieve/`                | Sand Sieve (sand → rare pine cone)  |
 | `tests/`                | Chromium integration tests          |
 | `shared/`               | Cell args, ids, data fields         |

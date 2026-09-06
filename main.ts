@@ -8,6 +8,7 @@ import { registerMain as registerPineNeedleMain } from "./tree/pine/pineNeedle/m
 import { register as registerWood } from "./wood/register.ts";
 import { register as registerCharcoal } from "./charcoal/register.ts";
 import { register as registerCompost } from "./compost/register.ts";
+import { registerMain as registerCompostMain } from "./compost/main.ts";
 import { register as registerPineWood } from "./tree/pine/pineWood/register.ts";
 import { registerMain as registerPineWoodMain } from "./tree/pine/pineWood/main.ts";
 import { registerSieve } from "./sieve/register.ts";
@@ -21,6 +22,7 @@ if (isEnabled(api)) {
   registerWood();
   registerCharcoal();
   registerCompost();
+  registerCompostMain();
   registerPineWood();
   registerPineConeMain();
   registerPineShootMain();

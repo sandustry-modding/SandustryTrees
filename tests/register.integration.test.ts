@@ -40,6 +40,7 @@ describe("trees register", { concurrency: false }, () => {
             ELEMENT.wood,
             ELEMENT.charcoal,
             ELEMENT.compost,
+            ELEMENT.wetCompost,
           ],
           TERRAIN.pineWood,
         ],
@@ -48,7 +49,7 @@ describe("trees register", { concurrency: false }, () => {
       },
     );
     assert.equal(live.terrain, true);
-    assert.equal(live.elements.length, 6);
+    assert.equal(live.elements.length, 7);
   });
 
   test("sand sieve structure and sprite are registered", async (t) => {
