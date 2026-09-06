@@ -1,9 +1,6 @@
 import { ELEMENT } from "../../../shared/ids.ts";
-import { modinfo } from "../../../modinfo.ts";
 
 const api = sandkit.api;
-
-const BINDING_SPAWN_CONE = `${modinfo.id}.spawnPineCone`;
 
 function isGrabberUse(itemId: string | number): boolean {
   const grabber = sandkit.enums.ItemId.Grabber;
@@ -11,20 +8,6 @@ function isGrabberUse(itemId: string | number): boolean {
 }
 
 export function registerMain(): void {
-  api.input.registerBinding(BINDING_SPAWN_CONE, ["KeyH"], {
-    displayName: "Spawn Pine Cone",
-    category: modinfo.name,
-    handlers: {
-      up: () => {
-        if (api.input.isCtrlHeld()) return;
-        const cell = api.input.getMouseCellPosition();
-        if (!api.grid.isCellEmptyAtCell(cell.x, cell.y)) return;
-        api.elements.createAtCell(cell.x, cell.y, ELEMENT.pineCone);
-        api.grid.reportActivityAtCell(cell.x, cell.y);
-      }
-    }
-  });
-
   const cone = api.elements.getTypeById(ELEMENT.pineCone);
   api.hooks.intercept("item:use", (args) => {
     if (!isGrabberUse(args.itemId)) return;
