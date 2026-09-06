@@ -5,12 +5,20 @@ import { register as registerPineShoot } from "./tree/pine/pineShoot/register.ts
 import { registerMain as registerPineShootMain } from "./tree/pine/pineShoot/main.ts";
 import { register as registerPineNeedle } from "./tree/pine/pineNeedle/register.ts";
 import { registerMain as registerPineNeedleMain } from "./tree/pine/pineNeedle/main.ts";
+import { register as registerAcorn } from "./tree/oak/acorn/register.ts";
+import { registerMain as registerAcornMain } from "./tree/oak/acorn/main.ts";
+import { register as registerOakShoot } from "./tree/oak/oakShoot/register.ts";
+import { registerMain as registerOakShootMain } from "./tree/oak/oakShoot/main.ts";
+import { register as registerOakLeaf } from "./tree/oak/oakLeaf/register.ts";
+import { registerMain as registerOakLeafMain } from "./tree/oak/oakLeaf/main.ts";
 import { register as registerWood } from "./wood/register.ts";
 import { register as registerCharcoal } from "./charcoal/register.ts";
 import { register as registerCompost } from "./compost/register.ts";
 import { registerMain as registerCompostMain } from "./compost/main.ts";
 import { register as registerPineWood } from "./tree/pine/pineWood/register.ts";
 import { registerMain as registerPineWoodMain } from "./tree/pine/pineWood/main.ts";
+import { register as registerOakWood } from "./tree/oak/oakWood/register.ts";
+import { registerMain as registerOakWoodMain } from "./tree/oak/oakWood/main.ts";
 import { registerSieve } from "./sieve/register.ts";
 
 const api = sandkit.api;
@@ -19,14 +27,22 @@ if (isEnabled(api)) {
   registerPineCone();
   registerPineShoot();
   registerPineNeedle();
+  registerAcorn();
+  registerOakShoot();
+  registerOakLeaf();
   registerWood();
   registerCharcoal();
   registerCompost();
   registerCompostMain();
   registerPineWood();
+  registerOakWood();
   registerPineConeMain();
   registerPineShootMain();
   registerPineNeedleMain();
+  registerAcornMain();
+  registerOakShootMain();
+  registerOakLeafMain();
   registerPineWoodMain();
+  registerOakWoodMain();
   void registerSieve();
 }

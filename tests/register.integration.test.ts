@@ -37,6 +37,9 @@ describe("trees register", { concurrency: false }, () => {
             ELEMENT.pineCone,
             ELEMENT.pineShoot,
             ELEMENT.pineNeedle,
+            ELEMENT.acorn,
+            ELEMENT.oakShoot,
+            ELEMENT.oakLeaf,
             ELEMENT.wood,
             ELEMENT.charcoal,
             ELEMENT.compost,
@@ -49,7 +52,42 @@ describe("trees register", { concurrency: false }, () => {
       },
     );
     assert.equal(live.terrain, true);
-    assert.equal(live.elements.length, 7);
+    assert.equal(live.elements.length, 10);
+  });
+
+  test("oak elements and oak wood terrain are registered", async (t) => {
+    const ids = await game.orderedModIds();
+    if (!(await skipUnlessLoaded(ids, t))) return;
+
+    const live = await game.waitFor(
+      (elementIds: string[], terrainId: string) => {
+        const api = sandkit.api;
+        const elements = elementIds.map((id) => {
+          try {
+            const type = api.elements.getTypeById(id);
+            return typeof type === "number" && Number.isFinite(type);
+          } catch {
+            return false;
+          }
+        });
+        let terrain = false;
+        try {
+          const type = api.terrains.getTypeById(terrainId);
+          terrain = typeof type === "number" && Number.isFinite(type);
+        } catch {
+          terrain = false;
+        }
+        return { elements, terrain };
+      },
+      (value) => value.elements.every(Boolean) && value.terrain,
+      {
+        args: [[ELEMENT.acorn, ELEMENT.oakShoot, ELEMENT.oakLeaf], TERRAIN.oakWood],
+        message: "oak content did not register",
+        timeoutMs: 4000,
+      },
+    );
+    assert.equal(live.terrain, true);
+    assert.equal(live.elements.length, 3);
   });
 
   test("sand sieve structure and sprite are registered", async (t) => {

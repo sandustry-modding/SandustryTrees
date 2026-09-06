@@ -11,7 +11,7 @@ export const modinfo = defineModInfo({
   workerEntry: "worker.js",
   author: "IrishBruse",
   description:
-    "Pine trees grow on dirt. Mine the trunk to harvest wood. Seal burning wood to make charcoal.",
+    "Pine and oak trees grow on dirt. Mine the trunk to harvest wood. Seal burning wood to make charcoal.",
   dependencies: [],
   loadOrder: 0,
   configSchema: {
@@ -19,7 +19,7 @@ export const modinfo = defineModInfo({
       type: "boolean",
       default: true,
       labelKey: "Mod enabled",
-      descriptionKey: "Turn pine trees, wood, and charcoal off."
+      descriptionKey: "Turn pine and oak trees, wood, and charcoal off."
     }
   }
 });
