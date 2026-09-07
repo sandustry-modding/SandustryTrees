@@ -16,7 +16,11 @@ Pine and oak trees, harvested wood, and charcoal for Sandustry.
    Fire crawls through oak leaves the same way as needles.
    A finished oak replaces one leaf with an Acorn (1% chance of a second).
    The Sand Sieve does not drop acorns.
-6. Mine any **trunk** cell with a shovel or drill. The rest of the trunk falls as **Raw Wood**. Needles and oak leaves fall as **Compost**. One **Pine Seed** drops from a pine canopy tip (rarely two). One **Acorn** drops from a finished oak (rarely two).
+6. Mine any **trunk** cell with a shovel or drill.
+   Only the trunk and canopy **at or above** that cell, and within **24** cells, fall as **Raw Wood** and **Compost**.
+   Overlapping wood below the chop or outside that radius stays standing.
+   One **Pine Seed** drops from a pine canopy tip (rarely two).
+   One **Acorn** drops from a finished oak (rarely two).
 7. Burn **Raw Wood** in open air to make vanilla **burnt residue**. Seal a pile (no empty cells in the 8 neighbors) to make **Charcoal**. Sealed fire stays lit for about 2 seconds per cell and crawls through the pile.
 8. Dry **Compost** stays a powder until it cannot fall or slide. After about **60 ticks** at rest, **Water** that touches it is consumed and the cell becomes **Wet Compost** (denser). A moving pile does not wet. Wet Compost must stay at rest about **180 ticks**, then each cell waits a **random** extra time before it becomes **Dirt**. A whole pile turns gradually. If a cell moves, its wait starts again.
 

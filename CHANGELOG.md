@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Changed: a chop only collapses wood and canopy within **24** cells of the mined cell.
+  Overlapping trees beyond that radius stay standing.
+- Fixed: chopping a trunk only collapses wood and canopy at or above the mined cell.
+  Overlapping logs below the chop stay standing.
 - Added: **F3** live-config panel edits Trees knobs.
   The same values stay on `irishbruseTrees`.
   F3 rows use the raw keys (`debug`, `pineTrunkHeight`, …).

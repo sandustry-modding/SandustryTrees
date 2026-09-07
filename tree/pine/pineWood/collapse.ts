@@ -216,7 +216,7 @@ function collapseComponent(
   types: HarvestTypes,
   cells: Cell[],
   writer: DropWriter,
-  origin: Cell,
+  harvest: Cell,
 ): void {
   const wood = cells.filter(
     (cell) => api.terrains.getTypeAtCell(cell.x, cell.y) === types.pineWood,
@@ -230,7 +230,12 @@ function collapseComponent(
   const limit = Math.min(batchLimit, wood.length);
   for (let i = 0; i < limit; i += 1) dropCell(api, types, wood[i], writer);
   dropOrphans(api, types, cells, writer);
-  if (batchLimit < wood.length) queueCollapseOrigin(origin.x, origin.y);
+  if (batchLimit < wood.length) queueCollapseOrigin(harvest.x, harvest.y);
+}
+
+function withinCollapseRadius(origin: Cell, cell: Cell): boolean {
+  const radius = config.woodCollapseRadius;
+  return Math.max(Math.abs(cell.x - origin.x), Math.abs(cell.y - origin.y)) <= radius;
 }
 
 export function collapseIfDetached(
@@ -245,6 +250,7 @@ export function collapseIfDetached(
   collapsing = true;
   try {
     const omitCell = options?.omitCell;
+    const harvest = { x: originX, y: originY };
     const seen = new Set<string>();
     const starts: Cell[] = [];
     if (isTrunkCell(api, types, originX, originY, omitCell)) {
@@ -253,6 +259,7 @@ export function collapseIfDetached(
     for (const [dx, dy] of DIRS) {
       const cellX = originX + dx;
       const cellY = originY + dy;
+      if (cellY > originY) continue;
       if (isTrunkCell(api, types, cellX, cellY, omitCell)) {
         starts.push({ x: cellX, y: cellY });
       }
@@ -263,8 +270,11 @@ export function collapseIfDetached(
       if (trunk.length === 0) continue;
       const attached = trunk.some((cell) => touchesDirt(api, cell.x, cell.y));
       if (attached) continue;
-      const cells = flood(api, types, start, new Set(), false, omitCell);
-      collapseComponent(api, types, cells, writer, start);
+      const cells = flood(api, types, start, new Set(), false, omitCell).filter(
+        (cell) => cell.y <= originY && withinCollapseRadius(harvest, cell),
+      );
+      if (cells.length === 0) continue;
+      collapseComponent(api, types, cells, writer, harvest);
     }
   } finally {
     collapsing = false;

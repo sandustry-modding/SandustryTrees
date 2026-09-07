@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { collapseIfDetached, type HarvestTypes } from "./collapse.ts";
+import { treesConfigDefaults as d } from "../../../config.ts";
 
 const dirt = 1;
 (globalThis as { sandkit?: { enums: { CellType: { Dirt: number } } } }).sandkit = {
@@ -91,6 +92,61 @@ test("collapseIfDetached clears a multi-cell trunk in one harvest", () => {
   assert.ok(
     writes.some((entry) => entry.startsWith(`terrain:${trunkX},${choppedY - 1}`)),
     `expected collapse to convert trunk above the chop, got ${writes.join("; ")}`,
+  );
+});
+
+test("collapseIfDetached does not convert overlapping wood below the chop", () => {
+  const cells = new Map<string, { terrain?: number; element?: number }>();
+  const trunkX = 5;
+  for (let y = 4; y <= 14; y += 1) {
+    cells.set(`${trunkX},${y}`, { terrain: types.pineWood });
+  }
+  for (let y = 8; y <= 14; y += 1) {
+    cells.set(`${trunkX + 1},${y}`, { terrain: types.pineWood });
+  }
+
+  const { api, writes } = makeTreeApi(cells);
+  const choppedY = 10;
+
+  collapseIfDetached(api, types, trunkX, choppedY, api, {
+    omitCell: { x: trunkX, y: choppedY },
+  });
+
+  assert.ok(
+    writes.some((entry) => entry.startsWith(`terrain:${trunkX},${choppedY - 1}`)),
+    `expected collapse above the chop, got ${writes.join("; ")}`,
+  );
+  assert.equal(cells.get(`${trunkX},${choppedY + 1}`)?.terrain, types.pineWood);
+  assert.equal(cells.get(`${trunkX + 1},${13}`)?.terrain, types.pineWood);
+  assert.equal(
+    writes.some((entry) => entry.startsWith(`terrain:${trunkX},${choppedY + 1}`)),
+    false,
+  );
+});
+
+test("collapseIfDetached does not convert wood outside the collapse radius", () => {
+  const cells = new Map<string, { terrain?: number; element?: number }>();
+  const trunkX = 5;
+  const choppedY = 80;
+  for (let y = 0; y <= choppedY; y += 1) {
+    cells.set(`${trunkX},${y}`, { terrain: types.pineWood });
+  }
+
+  const { api, writes } = makeTreeApi(cells);
+
+  collapseIfDetached(api, types, trunkX, choppedY, api, {
+    omitCell: { x: trunkX, y: choppedY },
+  });
+
+  const farY = choppedY - d.woodCollapseRadius - 4;
+  assert.equal(cells.get(`${trunkX},${farY}`)?.terrain, types.pineWood);
+  assert.equal(
+    writes.some((entry) => entry.startsWith(`terrain:${trunkX},${farY}`)),
+    false,
+  );
+  assert.ok(
+    writes.some((entry) => entry.startsWith(`terrain:${trunkX},${choppedY - 1}`)),
+    `expected collapse near the chop, got ${writes.join("; ")}`,
   );
 });
 

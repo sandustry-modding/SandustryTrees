@@ -21,6 +21,7 @@ export const treesConfigDefaults = {
   pineCanopySecondConeChance: 0.01,
   pineWoodCollapsePerTick: 3,
   pineWoodShadowRedrawRange: 24,
+  woodCollapseRadius: 24,
 
   oakTrunkHeight: 48,
   oakTrunkHalfWidth: 2,
