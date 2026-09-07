@@ -112,17 +112,23 @@ test("growOakShoot continues when an oak leaf sits above the shoot", () => {
 });
 
 test("growOakShoot places oak wood past the trunk", () => {
-  const shoot = { x: 10, y: 80 };
-  const { cells, api } = makeGrid(shoot, 36);
+  const shoot = { x: 10, y: 120 };
+  const { cells, api } = makeGrid(shoot, d.oakTrunkForkHeight);
+  for (let i = 0; i < d.oakLimbGrowRows + 2; i += 1) {
+    const shootCells = [...cells.entries()].filter(([, cell]) => cell.element === types.oakShoot);
+    if (shootCells.length === 0) break;
+    const [xy] = shootCells[0] ?? [];
+    if (!xy) break;
+    const [x, y] = xy.split(",").map(Number);
+    growOakShoot(api as unknown as WorkerSandkitApi, types, x ?? shoot.x, y ?? shoot.y);
+  }
 
-  growOakShoot(api as unknown as WorkerSandkitApi, types, shoot.x, shoot.y);
-
-  const branchWood = [...cells.entries()].filter(([cellKey, cell]) => {
+  const outerWood = [...cells.entries()].filter(([cellKey, cell]) => {
     if (cell.terrain !== types.oakWood) return false;
     const x = Number(cellKey.split(",")[0]);
-    return Math.abs(x - shoot.x) > 2;
+    return Math.abs(x - shoot.x) > d.oakTrunkHalfWidth;
   }).length;
-  assert.ok(branchWood >= 8, `expected forked oak wood, branchWood=${branchWood}`);
+  assert.ok(outerWood >= 8, `expected crown branch leaders, outerWood=${outerWood}`);
 });
 
 test("growOakShoot starts one cell wide", () => {
@@ -148,6 +154,33 @@ test("growOakShoot thickens the bole as it grows", () => {
   const matureDx = maxWoodDx(cells, shoot.x);
   assert.ok(youngDx <= 1, `young oak should stay thin, dx=${youngDx}`);
   assert.ok(matureDx >= d.oakTrunkHalfWidth, `mature oak should reach bole width, dx=${matureDx}`);
+});
+
+test("growOakShoot keeps crown branch wood visible when mature", () => {
+  const shoot = { x: 10, y: 120 };
+  const { cells, api } = makeGrid(shoot, 0);
+  growUntilDone(cells, api, shoot);
+  const branchWood = [...cells.entries()].filter(([cellKey, cell]) => {
+    if (cell.terrain !== types.oakWood) return false;
+    const x = Number(cellKey.split(",")[0]);
+    return Math.abs(x - shoot.x) > d.oakTrunkHalfWidth;
+  }).length;
+  assert.ok(branchWood >= 12, `expected visible crown branches, branchWood=${branchWood}`);
+});
+
+test("growOakShoot fills the center crown column when mature", () => {
+  const shoot = { x: 10, y: 120 };
+  const { cells, api } = makeGrid(shoot, 0);
+  growUntilDone(cells, api, shoot);
+  const splitY = shoot.y - d.oakTrunkForkHeight;
+  const peakY = shoot.y - d.oakTrunkHeight + 1;
+  for (let y = peakY + 2; y < splitY; y += 1) {
+    assert.equal(
+      cells.get(`${shoot.x},${y}`)?.element,
+      types.oakLeaf,
+      `center gap at y=${y}`,
+    );
+  }
 });
 
 test("growOakShoot does not fill a wood wedge", () => {

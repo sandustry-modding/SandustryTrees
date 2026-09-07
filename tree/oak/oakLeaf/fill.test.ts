@@ -99,6 +99,21 @@ test("desiredBranchCells stay put as the trunk grows", () => {
   assert.equal(grewEveryRow, false, "limb width must not form an upward funnel");
 });
 
+test("canopyDesiredCells rounds the crown skirt below the fork", () => {
+  const leaves = canopyDesiredCells(ROOT_X, ROOT_Y, TRUNK_HEIGHT);
+  const splitY = ROOT_Y - TRUNK_FORK_HEIGHT;
+  const centerMaxY = Math.max(
+    ...leaves.filter((cell) => cell.x === ROOT_X).map((cell) => cell.y),
+  );
+  const sideMaxY = Math.max(
+    ...leaves
+      .filter((cell) => Math.abs(cell.x - ROOT_X) >= 6)
+      .map((cell) => cell.y),
+  );
+  assert.equal(centerMaxY, splitY + d.oakCanopyMaxBelowFork);
+  assert.ok(sideMaxY < centerMaxY);
+});
+
 test("canopyDesiredCells fills the crotch between crown leaders", () => {
   const leaves = new Set(
     canopyDesiredCells(ROOT_X, ROOT_Y, TRUNK_HEIGHT).map((cell) => `${cell.x},${cell.y}`),
@@ -110,14 +125,20 @@ test("canopyDesiredCells fills the crotch between crown leaders", () => {
   assert.equal(leaves.has(`${ROOT_X},${splitY - 2}`), true);
 });
 
-test("canopyDesiredCells leaves gaps beside inner limbs", () => {
+test("canopyDesiredCells keeps limb wood bare but fills the center spine", () => {
   const leaves = new Set(
     canopyDesiredCells(ROOT_X, ROOT_Y, TRUNK_HEIGHT).map((cell) => `${cell.x},${cell.y}`),
   );
   const branches = desiredBranchCells(ROOT_X, ROOT_Y, TRUNK_HEIGHT);
-  assert.ok(branches.some((cell) => Math.abs(cell.x - ROOT_X) > TRUNK_HALF_WIDTH));
-  for (const cell of branches) {
+  const splitY = ROOT_Y - TRUNK_FORK_HEIGHT;
+  const peakY = ROOT_Y - TRUNK_HEIGHT + 1;
+  const sideBranches = branches.filter((cell) => cell.x !== ROOT_X);
+  assert.ok(sideBranches.length > 0);
+  for (const cell of sideBranches) {
     assert.equal(leaves.has(`${cell.x},${cell.y}`), false);
+  }
+  for (let y = peakY + 2; y < splitY; y += 1) {
+    assert.equal(leaves.has(`${ROOT_X},${y}`), true, `center gap at y=${y}`);
   }
 });
 
@@ -181,6 +202,51 @@ test("fillCanopy does not write occupied cells", () => {
     assert.equal(occupied.has(key), false, `replaced occupied cell ${key}`);
   }
   assert.ok(created.length > 0);
+});
+
+test("fillCanopy fills shoot cells that stayed in the crown shape", () => {
+  const created: string[] = [];
+  const leaves = new Set<string>();
+  const shoot = new Set(["10,108"]);
+  const api = {
+    grid: {
+      isCellEmptyAtCell: (x: number, y: number) =>
+        !leaves.has(`${x},${y}`) && !shoot.has(`${x},${y}`),
+      isTerrainAtCell: () => false,
+      reportActivityAtCell: () => {},
+    },
+    terrains: { getTypeAtCell: () => null, removeAtCell: () => {} },
+    elements: {
+      isTypeAtCell: (x: number, y: number, type?: number) => {
+        if (type === 3) return shoot.has(`${x},${y}`);
+        return leaves.has(`${x},${y}`);
+      },
+      getTypeAtCell: (x: number, y: number) => {
+        if (shoot.has(`${x},${y}`)) return 3;
+        return leaves.has(`${x},${y}`) ? 2 : null;
+      },
+      createAtCell: (x: number, y: number) => {
+        const key = `${x},${y}`;
+        created.push(key);
+        leaves.add(key);
+        shoot.delete(key);
+      },
+      removeAtCell: (x: number, y: number) => {
+        leaves.delete(`${x},${y}`);
+        shoot.delete(`${x},${y}`);
+      },
+    },
+  };
+  fillCanopy(
+    api as unknown as WorkerSandkitApi,
+    { oakLeaf: 2, oakWood: 3, oakShoot: 3 },
+    ROOT_X,
+    ROOT_Y,
+    TRUNK_HEIGHT,
+    TRUNK_HEIGHT - 1,
+  );
+  assert.equal(leaves.has("10,108"), true);
+  assert.ok(created.includes("10,108"));
 });
 
 test("fillCanopy only writes cells that are new since previousHeight", () => {

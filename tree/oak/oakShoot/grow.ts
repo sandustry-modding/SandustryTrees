@@ -170,7 +170,7 @@ function growOakShootInner(
   const rootY = woodY + height - 1;
   if (placed) finishShape(api, types, shootX, rootY, height);
   if (mature) {
-    fillCanopy(api, types, shootX, rootY, height, startHeight);
+    fillCanopy(api, types, shootX, rootY, height, 0);
     spawnCanopyAcorns(api, types, shootX, rootY, height);
     return;
   }

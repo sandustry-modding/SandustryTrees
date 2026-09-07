@@ -4,6 +4,7 @@ import type { Cell } from "../../../shared/cell.ts";
 export type CanopyTypes = {
   oakLeaf: number;
   oakWood: number;
+  oakShoot?: number;
 };
 
 type LimbSpec = {
@@ -71,6 +72,24 @@ function canopyGrowT(height: number): number {
 
 function trunkTopY(rootY: number, height: number): number {
   return rootY - height + 1;
+}
+
+/** Center spine above the fork — fills the shoot column without replacing limb wood. */
+function isCrotchBridgeCell(
+  rootX: number,
+  splitY: number,
+  peakY: number,
+  cell: Cell,
+): boolean {
+  if (cell.y > splitY || cell.y < peakY) return false;
+  return cell.x === rootX;
+}
+
+/** Bottom edge curves up toward the sides instead of a flat shelf. */
+function isBelowRoundedCanopyEdge(rootX: number, splitY: number, cell: Cell): boolean {
+  const dx = Math.abs(cell.x - rootX);
+  const floorY = splitY + config.oakCanopyMaxBelowFork - Math.floor(dx / 2);
+  return cell.y > floorY;
 }
 
 function thickenLimb(cells: readonly Cell[], dirX: -1 | 1): Cell[] {
@@ -173,9 +192,20 @@ export function canopyDesiredCells(rootX: number, rootY: number, height: number)
       stampDisk(cells, seen, cell.x, cell.y, radius);
     }
   }
+  for (let y = peakY + 2; y < splitY; y += 4) {
+    const t = (y - peakY) / Math.max(1, splitY - peakY);
+    const spineR = Math.max(3, Math.round(crownR - 2 + t * 2));
+    stampDisk(cells, seen, rootX, y, spineR);
+  }
   return cells.filter((cell) => {
     if (growing && cell.x === rootX && cell.y === peakY) return false;
-    if (branchKeys.has(cellKey(cell))) return false;
+    if (isBelowRoundedCanopyEdge(rootX, splitY, cell)) return false;
+    if (
+      branchKeys.has(cellKey(cell)) &&
+      !isCrotchBridgeCell(rootX, splitY, peakY, cell)
+    ) {
+      return false;
+    }
     if (
       Math.abs(cell.x - rootX) <= config.oakTrunkHalfWidth &&
       cell.y > splitY + config.oakCanopyLead
@@ -195,20 +225,33 @@ export function fillCanopy(
   previousHeight = 0,
 ): void {
   if (height < config.oakCanopyMinTrunkHeight) return;
+  const splitY = rootY - Math.min(height, config.oakTrunkForkHeight);
+  const peakY = trunkTopY(rootY, height);
   const desired = canopyDesiredCells(rootX, rootY, height);
   const previous =
     previousHeight > 0 && previousHeight < height
       ? canopyDesiredCells(rootX, rootY, previousHeight)
       : [];
   const desiredKeys = new Set(desired.map(cellKey));
-  const previousKeys = new Set(previous.map(cellKey));
   for (const cell of previous) {
     if (desiredKeys.has(cellKey(cell))) continue;
     if (!api.elements.isTypeAtCell(cell.x, cell.y, types.oakLeaf)) continue;
     api.elements.removeAtCell(cell.x, cell.y);
   }
   for (const cell of desired) {
-    if (previousKeys.has(cellKey(cell))) continue;
+    if (api.elements.isTypeAtCell(cell.x, cell.y, types.oakLeaf)) continue;
+    if (
+      types.oakShoot != null &&
+      api.elements.isTypeAtCell(cell.x, cell.y, types.oakShoot)
+    ) {
+      api.elements.removeAtCell(cell.x, cell.y);
+    }
+    if (
+      isCrotchBridgeCell(rootX, splitY, peakY, cell) &&
+      api.terrains.getTypeAtCell(cell.x, cell.y) === types.oakWood
+    ) {
+      api.terrains.removeAtCell(cell.x, cell.y);
+    }
     if (!isVacantCell(api, cell.x, cell.y)) continue;
     api.elements.createAtCell(cell.x, cell.y, types.oakLeaf);
   }
