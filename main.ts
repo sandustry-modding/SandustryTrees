@@ -22,10 +22,9 @@ import { register as registerOakWood } from "./tree/oak/oakWood/register.ts";
 import { registerMain as registerOakWoodMain } from "./tree/oak/oakWood/main.ts";
 import { registerSieve } from "./sieve/register.ts";
 
-const api = sandkit.api;
 treesLiveConfig.get();
 
-if (isEnabled(api)) {
+if (isEnabled()) {
   registerPineCone();
   registerPineShoot();
   registerPineNeedle();
