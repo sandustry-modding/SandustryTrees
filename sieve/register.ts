@@ -60,8 +60,4 @@ export async function registerSieve(): Promise<void> {
 
   unlockSieveForBuilding();
   api.events.on("game:ready", unlockSieveForBuilding);
-
-  console.log(
-    `loaded — ${STRUCTURE.sieve} every ${config.sieveProcessIntervalMs}ms, pine cone chance ${config.sievePineConeChance}`,
-  );
 }
