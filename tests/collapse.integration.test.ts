@@ -1,9 +1,14 @@
 import assert from "node:assert/strict";
-import { describe, test } from "node:test";
+import { before, describe, test } from "node:test";
 import { setupGame } from "@modkit/test";
 import { CELL_SIZE, ELEMENT, MOD_ID, PAD, skipUnlessLoaded, TERRAIN } from "./helpers.ts";
 
 const game = await setupGame();
+
+before(async () => {
+  await game.clock.install();
+  await game.seed();
+});
 
 /** Away from plant.integration pads on the void platform. */
 const COLLAPSE_PAD = { x: PAD.x + 40, y: PAD.y };
@@ -106,7 +111,6 @@ describe("pine trunk collapse", { concurrency: false }, () => {
     }
 
     try {
-      await game.resumeSimulation();
       await game.waitFor(countTrunk, (value) => value.pineWood === pad.height, {
         args: [pad],
         message: "pine trunk did not appear on the pad",
@@ -115,16 +119,20 @@ describe("pine trunk collapse", { concurrency: false }, () => {
 
       await game.evaluate(chopBottomTrunk, pad);
 
-      const deadline = Date.now() + 12000;
-      let live = await game.evaluate(countTrunk, pad);
-      while (Date.now() < deadline && !(live.pineWood === 0 && live.wood > 0)) {
-        await game.runSimulation(250);
-        live = await game.evaluate(countTrunk, pad);
-      }
+      const live = await game.waitFor(
+        countTrunk,
+        (value) => value.pineWood === 0 && value.wood > 0,
+        {
+          args: [pad],
+          ticksPerPoll: 5,
+          timeoutMs: 12000,
+          message: "detached trunk did not collapse into wood",
+        },
+      );
       assert.equal(live.pineWood, 0, "detached trunk did not collapse into wood");
       assert.ok(live.wood > 0, `expected falling wood, got wood=${live.wood}`);
     } finally {
-      await game.pauseSimulation();
+      await game.evaluate(setupTrunk, pad);
     }
   });
 });

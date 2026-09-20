@@ -1,9 +1,14 @@
 import assert from "node:assert/strict";
-import { describe, test } from "node:test";
+import { before, describe, test } from "node:test";
 import { setupGame } from "@modkit/test";
 import { CELL_SIZE, ELEMENT, PAD, skipUnlessLoaded } from "./helpers.ts";
 
 const game = await setupGame();
+
+before(async () => {
+  await game.clock.install();
+  await game.seed();
+});
 
 /** Away from plant and collapse pads on the void platform. */
 const COMPOST_PAD = { x: PAD.x + 80, y: PAD.y };
@@ -117,13 +122,13 @@ describe("compost", { concurrency: false }, () => {
 
     try {
       await game.evaluate(placeDryCompost, pad);
-      await game.runSimulation(750);
+      await game.ticks(90);
       const live = await game.evaluate(compostState, pad);
       assert.equal(live.compost, true);
       assert.equal(live.dirt, false);
       assert.equal(live.wetCompost, false);
     } finally {
-      await game.pauseSimulation();
+      await game.evaluate(clearPad, pad);
     }
   });
 
@@ -140,18 +145,17 @@ describe("compost", { concurrency: false }, () => {
 
     try {
       await game.evaluate(placeWetCompost, pad);
-      await game.resumeSimulation();
-      const deadline = Date.now() + 15000;
-      let live = await game.evaluate(compostState, pad);
-      while (Date.now() < deadline && !live.dirt) {
-        await game.runSimulation(250);
-        live = await game.evaluate(compostState, pad);
-      }
+      const live = await game.waitFor(compostState, (value) => value.dirt, {
+        args: [pad],
+        ticksPerPoll: 10,
+        timeoutMs: 20000,
+        message: "wet compost did not become dirt",
+      });
       assert.equal(live.dirt, true, "wet compost did not become dirt");
       assert.equal(live.wetCompost, false);
       assert.equal(live.compost, false);
     } finally {
-      await game.pauseSimulation();
+      await game.evaluate(clearPad, pad);
     }
   });
 
@@ -168,20 +172,19 @@ describe("compost", { concurrency: false }, () => {
 
     try {
       await game.evaluate(placeDryCompost, pad);
-      await game.runSimulation(1000);
+      await game.ticks(90);
       await game.evaluate(placeWaterBeside, pad);
-      await game.resumeSimulation();
-      const deadline = Date.now() + 15000;
-      let live = await game.evaluate(compostState, pad);
-      while (Date.now() < deadline && !live.dirt) {
-        await game.runSimulation(250);
-        live = await game.evaluate(compostState, pad);
-      }
+      const live = await game.waitFor(compostState, (value) => value.dirt, {
+        args: [pad],
+        ticksPerPoll: 10,
+        timeoutMs: 20000,
+        message: "wetted compost did not become dirt",
+      });
       assert.equal(live.dirt, true, "wetted compost did not become dirt");
       assert.equal(live.compost, false);
       assert.equal(live.wetCompost, false);
     } finally {
-      await game.pauseSimulation();
+      await game.evaluate(clearPad, pad);
     }
   });
 });

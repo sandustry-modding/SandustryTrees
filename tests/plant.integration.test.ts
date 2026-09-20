@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { describe, test } from "node:test";
+import { before, describe, test } from "node:test";
 import { setupGame } from "@modkit/test";
 import {
   CELL_SIZE,
@@ -13,6 +13,11 @@ import {
 } from "./helpers.ts";
 
 const game = await setupGame();
+
+before(async () => {
+  await game.clock.install();
+  await game.seed();
+});
 
 function clearAndFloor(pad: PlantPad): PlantPadResult {
   const api = sandkit.api;
@@ -53,20 +58,18 @@ function clearAndFloor(pad: PlantPad): PlantPadResult {
   return { ok: true };
 }
 
-function placeCone(pad: PlantPad): void {
+function placeSeed(pad: PlantPad): void {
   const api = sandkit.api;
   api.grid.mutate((writer) => {
-    writer.elements.createAtCell(pad.coneX, pad.coneY, pad.coneId, { isFreeFalling: false });
+    writer.elements.createAtCell(pad.coneX, pad.coneY, pad.coneId, {
+      isFreeFalling: pad.floor === "dirt" && pad.water,
+    });
+    if (pad.water) {
+      writer.elements.createAtCell(pad.coneX + 1, pad.coneY, "water", { isFreeFalling: false });
+    }
   });
   api.grid.reportActivityAtCell(pad.coneX, pad.coneY);
-}
-
-function placeWater(pad: PlantPad): void {
-  const api = sandkit.api;
-  api.grid.mutate((writer) => {
-    writer.elements.createAtCell(pad.coneX + 1, pad.coneY, "water", { isFreeFalling: false });
-  });
-  api.grid.reportActivityAtCell(pad.coneX + 1, pad.coneY);
+  if (pad.water) api.grid.reportActivityAtCell(pad.coneX + 1, pad.coneY);
 }
 
 function planted(coneId: string, shootId: string, woodId: string, cellX: number, cellY: number) {
@@ -86,12 +89,6 @@ function planted(coneId: string, shootId: string, woodId: string, cellX: number,
     shoot: shootNearby,
     wood: api.terrains.getTypeAtCell(cellX, cellY) === wood,
   };
-}
-
-function floorReady(floor: FloorKind, cellX: number, cellY: number) {
-  if (floor === "none") return { ok: true };
-  const want = floor === "dirt" ? sandkit.enums.CellType.Dirt : sandkit.enums.CellType.Stone;
-  return { ok: sandkit.api.terrains.getTypeAtCell(cellX, cellY + 1) === want };
 }
 
 function cellKinds(coneId: string, shootId: string, cellX: number, cellY: number) {
@@ -115,23 +112,32 @@ function padArgs(floor: FloorKind, water: boolean): PlantPad {
   };
 }
 
+async function waitTicksUntil<TArgs extends unknown[], T>(
+  read: (...args: TArgs) => T,
+  match: (value: T) => boolean,
+  args: TArgs,
+  maxTicks: number,
+  message: string,
+): Promise<T> {
+  let live = await game.evaluate(read, ...args);
+  let used = 0;
+  while (!match(live) && used < maxTicks) {
+    const step = Math.min(5, maxTicks - used);
+    await game.ticks(step);
+    used += step;
+    live = await game.evaluate(read, ...args);
+  }
+  if (!match(live)) {
+    throw new Error(`${message}: last value ${JSON.stringify(live)} after ${used} ticks`);
+  }
+  return live;
+}
+
 async function setupPad(floor: FloorKind, water: boolean): Promise<PlantPadResult> {
   const pad = padArgs(floor, water);
   const prepared = await game.evaluate(clearAndFloor, pad);
   if (!prepared.ok) return prepared;
-  await game.resumeSimulation();
-  await game.waitFor(floorReady, (value) => value.ok, {
-    args: [floor, PAD.x, PAD.y],
-    message: `${floor} floor did not appear`,
-    timeoutMs: 4000,
-  });
-  await game.evaluate(placeCone, pad);
-  await game.waitFor(cellKinds, (value) => value.cone, {
-    args: [ELEMENT.pineCone, ELEMENT.pineShoot, PAD.x, PAD.y],
-    message: "pine cone did not appear on the pad",
-    timeoutMs: 4000,
-  });
-  if (water) await game.evaluate(placeWater, pad);
+  await game.evaluate(placeSeed, pad);
   return { ok: true };
 }
 
@@ -147,7 +153,7 @@ describe("pine cone plant", { concurrency: false }, () => {
     }
 
     try {
-      await game.runSimulation(750);
+      await game.ticks(30);
       const live = await game.evaluate(
         cellKinds,
         ELEMENT.pineCone,
@@ -158,7 +164,7 @@ describe("pine cone plant", { concurrency: false }, () => {
       assert.equal(live.cone, true);
       assert.equal(live.shoot, false);
     } finally {
-      await game.pauseSimulation();
+      await game.evaluate(clearAndFloor, padArgs("dirt", false));
     }
   });
 
@@ -173,7 +179,7 @@ describe("pine cone plant", { concurrency: false }, () => {
     }
 
     try {
-      await game.runSimulation(750);
+      await game.ticks(30);
       const live = await game.evaluate(
         cellKinds,
         ELEMENT.pineCone,
@@ -184,7 +190,7 @@ describe("pine cone plant", { concurrency: false }, () => {
       assert.equal(live.cone, true);
       assert.equal(live.shoot, false);
     } finally {
-      await game.pauseSimulation();
+      await game.evaluate(clearAndFloor, padArgs("stone", false));
     }
   });
 
@@ -199,14 +205,16 @@ describe("pine cone plant", { concurrency: false }, () => {
     }
 
     try {
-      const live = await game.waitFor(planted, (value) => value.shoot || value.wood, {
-        args: [ELEMENT.pineCone, ELEMENT.pineShoot, TERRAIN.pineWood, PAD.x, PAD.y],
-        message: "cone on dirt with water did not become a shoot",
-        timeoutMs: 8000,
-      });
+      const live = await waitTicksUntil(
+        planted,
+        (value) => value.shoot || value.wood,
+        [ELEMENT.pineCone, ELEMENT.pineShoot, TERRAIN.pineWood, PAD.x, PAD.y],
+        80,
+        "cone on dirt with water did not become a shoot",
+      );
       assert.ok(live.shoot || live.wood);
     } finally {
-      await game.pauseSimulation();
+      await game.evaluate(clearAndFloor, padArgs("dirt", false));
     }
   });
 });
@@ -226,19 +234,7 @@ async function setupOakPad(floor: FloorKind, water: boolean): Promise<PlantPadRe
   const pad = oakPadArgs(floor, water);
   const prepared = await game.evaluate(clearAndFloor, pad);
   if (!prepared.ok) return prepared;
-  await game.resumeSimulation();
-  await game.waitFor(floorReady, (value) => value.ok, {
-    args: [floor, PAD.x, PAD.y],
-    message: `${floor} floor did not appear`,
-    timeoutMs: 4000,
-  });
-  await game.evaluate(placeCone, pad);
-  await game.waitFor(cellKinds, (value) => value.cone, {
-    args: [ELEMENT.acorn, ELEMENT.oakShoot, PAD.x, PAD.y],
-    message: "acorn did not appear on the pad",
-    timeoutMs: 4000,
-  });
-  if (water) await game.evaluate(placeWater, pad);
+  await game.evaluate(placeSeed, pad);
   return { ok: true };
 }
 
@@ -299,14 +295,16 @@ describe("acorn plant", { concurrency: false }, () => {
     }
 
     try {
-      const live = await game.waitFor(planted, (value) => value.shoot || value.wood, {
-        args: [ELEMENT.acorn, ELEMENT.oakShoot, TERRAIN.oakWood, PAD.x, PAD.y],
-        message: "acorn on dirt with water did not become a shoot",
-        timeoutMs: 8000,
-      });
+      const live = await waitTicksUntil(
+        planted,
+        (value) => value.shoot || value.wood,
+        [ELEMENT.acorn, ELEMENT.oakShoot, TERRAIN.oakWood, PAD.x, PAD.y],
+        80,
+        "acorn on dirt with water did not become a shoot",
+      );
       assert.ok(live.shoot || live.wood);
     } finally {
-      await game.pauseSimulation();
+      await game.evaluate(clearAndFloor, oakPadArgs("dirt", false));
     }
   });
 
@@ -321,12 +319,14 @@ describe("acorn plant", { concurrency: false }, () => {
     }
 
     try {
-      await game.waitFor(planted, (value) => value.shoot || value.wood, {
-        args: [ELEMENT.acorn, ELEMENT.oakShoot, TERRAIN.oakWood, PAD.x, PAD.y],
-        message: "acorn did not become a shoot",
-        timeoutMs: 8000,
-      });
-      const live = await game.waitFor(
+      await waitTicksUntil(
+        planted,
+        (value) => value.shoot || value.wood,
+        [ELEMENT.acorn, ELEMENT.oakShoot, TERRAIN.oakWood, PAD.x, PAD.y],
+        80,
+        "acorn did not become a shoot",
+      );
+      const live = await waitTicksUntil(
         sampleOakCrown,
         (value) =>
           !value.shoot &&
@@ -335,16 +335,14 @@ describe("acorn plant", { concurrency: false }, () => {
           value.woodMaxDx > 4 &&
           value.leaves >= 40 &&
           value.leafMaxDx >= value.woodMaxDx,
-        {
-          args: [PAD.x, PAD.y, TERRAIN.oakWood, ELEMENT.oakLeaf, ELEMENT.oakShoot],
-          message: "oak crown did not grow forks and leaf tufts",
-          timeoutMs: 20000,
-        },
+        [PAD.x, PAD.y, TERRAIN.oakWood, ELEMENT.oakLeaf, ELEMENT.oakShoot],
+        4000,
+        "oak crown did not grow forks and leaf tufts",
       );
       assert.ok(live.branchWood >= 12, `expected forked oak wood, got ${live.branchWood}`);
       assert.ok(live.leaves >= 40, `expected leaf tufts, got ${live.leaves}`);
     } finally {
-      await game.pauseSimulation();
+      await game.evaluate(clearAndFloor, oakPadArgs("dirt", false));
     }
   });
 });
