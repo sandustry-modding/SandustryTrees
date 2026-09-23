@@ -14,7 +14,7 @@ import type { HarvestTypes as OakHarvestTypes } from "./tree/oak/oakWood/collaps
 import type { BurnTypes } from "./wood/burn.ts";
 import { ELEMENT, TERRAIN, VANILLA_ELEMENT } from "./shared/ids.ts";
 
-const workerApi = sandkit.api as unknown as WorkerSandkitApi;
+const workerApi = sandkit.api;
 treesLiveConfig.get();
 treesLiveConfig.listen(workerApi);
 
