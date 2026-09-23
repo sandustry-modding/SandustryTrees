@@ -27,6 +27,6 @@ export function register(): void {
   api.elements.addInteractionInfo(elementType, { kind: "flammable" });
   api.elements.updateDefinition(elementType, {
     flammable: { outputElementId: VANILLA_ELEMENT.burntResidue, outputChance: 1 },
-  } as Parameters<typeof api.elements.updateDefinition>[1]);
+  });
   api.discoveries.addElementByType(elementType);
 }

@@ -27,13 +27,13 @@ export function register(): void {
       outputElementId: VANILLA_ELEMENT.burntResidue,
       outputChance: config.pineNeedleBurnResidueChance,
     },
-  } as Parameters<typeof api.elements.register>[0]);
+  });
   api.elements.addInteractionInfo(elementType, { kind: "flammable" });
   api.elements.updateDefinition(elementType, {
     flammable: {
       outputElementId: VANILLA_ELEMENT.burntResidue,
       outputChance: config.pineNeedleBurnResidueChance,
     },
-  } as Parameters<typeof api.elements.updateDefinition>[1]);
+  });
   api.discoveries.addElementByType(elementType);
 }
